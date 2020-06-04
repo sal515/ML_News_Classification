@@ -9,7 +9,7 @@
 * Numpy 
 * Pandas 
 * sklearn
-* Nltk
+* NLTK
 * Matplotlib
 * Math
 * sys
@@ -46,6 +46,10 @@
 ### Install NLTK:
     
     conda install -c anaconda nltk
+
+### Install numpy:
+    
+    conda install -c anaconda numpy
 
     
 
