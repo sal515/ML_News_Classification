@@ -7,7 +7,7 @@
 
 # Required Libraries (Installation Instructions section provide installation steps): 
 * Numpy 
-* Pandas
+* Pandas 
 * sklearn
 * Nltk
 * Matplotlib
@@ -38,6 +38,16 @@
                 https://slproweb.com/products/Win32OpenSSL.html
                 
     * Please run the **"update conda"** command provided in the previous step to test if the issue is resolved. 
+
+### Install Pandas:
+
+    conda install pandas
+
+### Install NLTK:
+    
+    conda install -c anaconda nltk
+
+    
 
 
 # Run Instructions
