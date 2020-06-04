@@ -34,6 +34,18 @@ def preprocess_translate(sentences):
     return clean_sentence
 
 
+def clean_tokenize_freq(strings_list):
+    tokenized = []
+    freq_dist = []
+
+    cleaned_string = preprocess_translate(strings_list)
+    for s in cleaned_string:
+        t = nltk.word_tokenize(s)
+        tokenized.append(t)
+        freq_dist.append(nltk.FreqDist(t))
+    return tokenized, freq_dist
+
+
 # TEST CODE
 if __name__ == "__main__":
     import pandas as pd
@@ -45,34 +57,46 @@ if __name__ == "__main__":
     # data_set.info()
 
     data_set["Title"] = list(data_set["Title"].str.lower())
+    data_set["Post Type"] = list(data_set["Post Type"].str.lower())
 
-    [print(i) for i in data_set["Title"]]
+    # [print(i) for i in data_set["Title"]]
+    # [print(i) for i in data_set["Post Type"]]
+    # quit(-1)
 
-    sentences = list(data_set["Title"])
+    sentences_list = list(data_set["Title"])
 
-    clean_sentences = preprocess_regex(sentences)
+    # timer_start = time.perf_counter()
+    words_tokenized, words_freq = clean_tokenize_freq(sentences_list)
+    # time_taken = time.perf_counter() - timer_start
+    # print("translating t1 : ", time_taken)
 
-    t1 = "terminal terminal terminal terminal terminal: ! #$%&\'()*+,-./:;<=>?@[\]^\_`{|}~  how the airport came to embody our national psychosis 213432324"
-    t2 = "not only is it possible to beat google, it could happen sooner"
+    post_types_list = list(data_set["Post Type"])
+    post_freq = dict(nltk.FreqDist(post_types_list))
 
-    timer_start = time.perf_counter()
-    t1_a = preprocess_translate([t1])
-    print(t1_a)
-    time_taken = time.perf_counter() - timer_start
-    print("translating t1 : ", time_taken)
-
-    timer_start = time.perf_counter()
-    t1_b = preprocess_regex([t1])
-    print(t1_b)
-    time_taken = time.perf_counter() - timer_start
-    print("regex t1 : ", time_taken)
-
-    import nltk
-
-    tokenized = nltk.word_tokenize(t1_a[0])
-    print("tokenized", tokenized)
-    freq_dist = nltk.FreqDist(tokenized)
-    print("frequency distribution of words", freq_dist.items())
+    # clean_tokenize_freq(sentences)
+    #
+    #
+    # t1 = "terminal terminal terminal terminal terminal: ! #$%&\'()*+,-./:;<=>?@[\]^\_`{|}~  how the airport came to embody our national psychosis 213432324"
+    # t2 = "not only is it possible to beat google, it could happen sooner"
+    #
+    # timer_start = time.perf_counter()
+    # t1_a = preprocess_translate([t1])
+    # print(t1_a)
+    # time_taken = time.perf_counter() - timer_start
+    # print("translating t1 : ", time_taken)
+    #
+    # timer_start = time.perf_counter()
+    # t1_b = preprocess_regex([t1])
+    # print(t1_b)
+    # time_taken = time.perf_counter() - timer_start
+    # print("regex t1 : ", time_taken)
+    #
+    # # import nltk
+    #
+    # words_tokenized = nltk.word_tokenize(t1_a[0])
+    # print("tokenized", words_tokenized)
+    # words_freq_dist = nltk.FreqDist(words_tokenized)
+    # print("frequency distribution of words", words_freq_dist.items())
 
     # nltk.download('punkt')
     # nltk.download('wordnet')
