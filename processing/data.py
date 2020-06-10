@@ -12,6 +12,7 @@ included_list = """'"-_’/."""
 
 def tokenize(untokenized_string):
     tweet_tokenizer = nltk.TweetTokenizer()
+    # FIXME: Remove
     # return nltk.word_tokenize(s)
     return tweet_tokenizer.tokenize(untokenized_string)
 
@@ -30,6 +31,7 @@ def preprocess_translate(sentences):
 
     exclude = "".join(str(e) for e in excluded_symbols)
 
+    # FIXME: combined replace
     for sentence in sentences:  # this is Df_pd for Df_np (text[:])
         sentence = sentence.replace("’", "'")
         sentence = sentence.replace("–", "-")
@@ -37,6 +39,7 @@ def preprocess_translate(sentences):
         sentence = sentence.replace("‐", "-")
         new_sentence = sentence.translate(str.maketrans('', '', exclude))
 
+        # FIXME: DELETE
         #     # new_sentence = new_sentence.translate(str.maketrans('', '', '0123456789'))
         #     # new_sentence = symbols.translate(str.maketrans('', '', string.punctuation))
         #     # new_sentence = new_sentence.translate(str.maketrans('', '', string.digits))
@@ -55,6 +58,7 @@ def clean_tokenize(strings_list, combine):
     for s in cleaned_string_list:
         tokenized.append(tokenize(s))
 
+    # FIXME: DELETE
     # counter = 0
     # for s in cleaned_string_list:
     #     tokens = tokenize(s)
@@ -82,7 +86,8 @@ def frequency_distribution(tokenized_arr):
         return freq
 
     freq = dict(nltk.FreqDist(tokenized_arr))
-    del freq["-"]
+    # Fixme Re delete
+    # del freq["-"]
     return freq
 
 
@@ -109,6 +114,14 @@ def extract_dataset(dataset_path, stopwords_path, filterBy="Created At", trainin
     return training_set, testing_set, stop_words
 
 
+def test_tokenizing():
+    global data
+    cleaned_sentences, symbols = preprocess_translate(sentences_list)
+    vocabulary_sentences_test, all_excluded_vocabulary_sentences_test = clean_tokenize(sentences_list, combine=False)
+    data = {"Original": sentences_list, "Cleaned": cleaned_sentences, "Tokenized": vocabulary_sentences_test}
+    pd.DataFrame(data).to_csv("../test_org_clean.txt", "\t")
+
+
 # TEST CODE
 if __name__ == "__main__":
     debug = 0
@@ -124,28 +137,26 @@ if __name__ == "__main__":
 
     # timer_start = time.perf_counter()
     sentences_list = list(training_set[vocabulary_col_name])
-    cleaned_sentences, symbols = preprocess_translate(sentences_list)
-    # vocabulary = clean_tokenize(sentences_list, combine=True)
 
-    vocabulary_sentences_test, all_excluded_vocabulary_sentences_test = clean_tokenize(sentences_list, combine=False)
+    # FIXME: DELETE Test func
+    # test_tokenizing()
 
     vocabulary, all_excluded_vocabulary = clean_tokenize(sentences_list, combine=True)
 
-    # vocabulary_freq = frequency_distribution(vocabulary)
-    # print("freq: ", vocabulary_freq)
+    vocabulary_freq = frequency_distribution(vocabulary)
+    print("freq: ", vocabulary_freq)
 
+    # FIXME
     data = {"Cleaned": vocabulary}
     pd.DataFrame(data).sort_values(by="Cleaned", ascending=True).to_csv("../test_cleaned.txt")
 
-    data = {"Original": sentences_list, "Cleaned": cleaned_sentences, "Tokenized": vocabulary_sentences_test}
-    pd.DataFrame(data).to_csv("../test_org_clean.txt", "\t")
-
     # pd.DataFrame(data, columns=["Original", "New"]).to_csv("../test.csv")
 
-    post_types_list = list(training_set["Post Type"])
-    # post_freq = dict(nltk.FreqDist(post_types_list))
-    post_freq = nltk.FreqDist(post_types_list)
+    # post_types_list = list(training_set["Post Type"])
+    # # post_freq = dict(nltk.FreqDist(post_types_list))
+    # post_freq = nltk.FreqDist(post_types_list)
 
+    # FIXME
     # Filter by "Post Type"
     # story_titles = training_data[training_data["Post Type"].isin(["story"])]["Title"]
 
