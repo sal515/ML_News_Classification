@@ -46,11 +46,12 @@ def extract_dataset(dataset_path, stopwords_path, filterBy="Created At", trainin
     data[data_category] = extracted_category
 
     training_set = data[data[data_category].isin([trainingKey.lower()])]
+    train_classes_freq = nltk.FreqDist(list(training_set[classes_col]))
     testing_set = data[data[data_category].isin([testingKey.lower()])]
-    classes_freq = nltk.FreqDist(list(data[classes_col]))
+    test_classes_freq = nltk.FreqDist(list(testing_set[classes_col]))
     stop_words = pd.read_csv(stopwords_path, encoding="utf-8")
 
-    return training_set, testing_set, classes_freq, stop_words
+    return training_set, testing_set, train_classes_freq, test_classes_freq, stop_words
 
 
 def tokenize(untokenized_string):
@@ -106,13 +107,13 @@ def frequency_distribution(tokenized_words):
     return freq
 
 
-def generate_model(unique_vocabulary, data_set, classes_col, vocabulary_col, classes_dict, smoothing):
+def generate_model(unique_vocabulary, data_set, classes_col, vocabulary_col, classes_freq, smoothing):
     temp_class_frequencies = []
     temp_class_probabilities = []
     temp_data_dict = {"word": list(unique_vocabulary)}
 
     """List of all classes"""
-    classes = np.sort(np.array(list(classes_dict.keys())))
+    classes = np.sort(np.array(list(classes_freq.keys())))
 
     """For every class, get the vocabulary and frequency of all all the words"""
     for cls in classes:
@@ -126,10 +127,10 @@ def generate_model(unique_vocabulary, data_set, classes_col, vocabulary_col, cla
         cls_freq = temp_class_frequencies[i]
         for w in unique_vocabulary:
             if w not in cls_freq:
-                tem_prob[w] = smoothing / (classes_dict[classes[i]] + (smoothing * unique_vocabulary.__len__()))
+                tem_prob[w] = smoothing / (classes_freq[classes[i]] + (smoothing * unique_vocabulary.__len__()))
                 continue
             tem_prob[w] = (cls_freq[w] + smoothing) / (
-                    classes_dict[classes[i]] + (smoothing * unique_vocabulary.__len__()))
+                    classes_freq[classes[i]] + (smoothing * unique_vocabulary.__len__()))
         temp_class_probabilities.append(tem_prob)
 
     """"Creating Dataframe to save to txt file"""
@@ -150,7 +151,18 @@ def generate_model(unique_vocabulary, data_set, classes_col, vocabulary_col, cla
                 continue
             temp_data_dict[classes[i] + " freq"].append(temp_class_frequencies[i][w])
 
-    return temp_class_frequencies, temp_class_probabilities, temp_data_dict
+    """Calculating class probabilites"""
+    # FIXME something wrong with class freq
+    total_classes = calc_total_cls_entries(classes_freq)
+    classes_prob = classes_freq.copy()
+    for (k, v) in classes_freq.items():
+        classes_prob[k] = v / total_classes
+
+    return temp_class_frequencies, temp_class_probabilities, classes_prob, temp_data_dict
+
+
+def calc_total_cls_entries(classes_freq):
+    return reduce((lambda x, y: x + y), list(classes_freq.values()))
 
 
 def store_dataframe_to_file(data_dict, csv_path, text_path):
@@ -188,8 +200,11 @@ if __name__ == "__main__":
     removed_word_path = "../output/removed_word.txt"
 
     """Extracting data from the dataset files"""
-    train_set, test_set, classes_freq, stopwords = extract_dataset(dataset_path, stop_words_path, data_filter,
-                                                                   train_key, test_Key, classes_col)
+    train_set, test_set, train_cls_freq, test_cls_freq, stopwords = extract_dataset(dataset_path,
+                                                                                    stop_words_path,
+                                                                                    data_filter,
+                                                                                    train_key, test_Key,
+                                                                                    classes_col)
 
     """Get all vocabulary and frequency of all the words in TRAIN dataset"""
     train_unique_vocabulary, train_vocabulary_freq = clean_tokenize_freq_dist(train_set, vocabulary_col, True)
@@ -199,15 +214,12 @@ if __name__ == "__main__":
     # test_unique_vocabulary, test_vocabulary_freq = clean_tokenize_freq_dist(train_set, vocabulary_col, False)
 
     """Calculate conditional probabilities for each word in every class"""
-    class_word_frequencies, class_word_probabilities, training_data = generate_model(train_unique_vocabulary, train_set,
-                                                                                     classes_col, vocabulary_col,
-                                                                                     classes_freq,
-                                                                                     smoothing)
-
-    total_classes = reduce((lambda x, y: x + y), list(classes_freq.values()))
-    classes_prob = classes_freq
-    for (k, v) in classes_freq.items():
-        classes_prob[k] = v / total_classes
+    train_cls_word_freq, train_cls_word_prob, train_cls_prob, training_data = generate_model(train_unique_vocabulary,
+                                                                                             train_set,
+                                                                                             classes_col,
+                                                                                             vocabulary_col,
+                                                                                             train_cls_freq,
+                                                                                             smoothing)
 
     """Store probabilities data frame to file"""
     store_dataframe_to_file(training_data, csv_path=csv_path, text_path=text_path)
