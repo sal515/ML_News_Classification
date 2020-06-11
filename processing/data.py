@@ -6,6 +6,7 @@ import nltk
 import string
 import numpy as np
 import pandas as pd
+from functools import reduce
 from datetime import datetime
 
 # avoiding ellipses
@@ -187,7 +188,7 @@ if __name__ == "__main__":
     removed_word_path = "../output/removed_word.txt"
 
     """Extracting data from the dataset files"""
-    train_set, test_set, classes_dict, stopwords = extract_dataset(dataset_path, stop_words_path, data_filter,
+    train_set, test_set, classes_freq, stopwords = extract_dataset(dataset_path, stop_words_path, data_filter,
                                                                    train_key, test_Key, classes_col)
 
     """Get all vocabulary and frequency of all the words in TRAIN dataset"""
@@ -198,16 +199,23 @@ if __name__ == "__main__":
     # test_unique_vocabulary, test_vocabulary_freq = clean_tokenize_freq_dist(train_set, vocabulary_col, False)
 
     """Calculate conditional probabilities for each word in every class"""
-    class_frequencies, class_probabilities, training_data = generate_model(train_unique_vocabulary, train_set,
-                                                                           classes_col, vocabulary_col, classes_dict,
-                                                                           smoothing)
+    class_word_frequencies, class_word_probabilities, training_data = generate_model(train_unique_vocabulary, train_set,
+                                                                                     classes_col, vocabulary_col,
+                                                                                     classes_freq,
+                                                                                     smoothing)
+
+    total_classes = reduce((lambda x, y: x + y), list(classes_freq.values()))
+    classes_prob = classes_freq
+    for (k, v) in classes_freq.items():
+        classes_prob[k] = v / total_classes
 
     """Store probabilities data frame to file"""
     store_dataframe_to_file(training_data, csv_path=csv_path, text_path=text_path)
     """Store vocabulary data frame to file"""
     store_dataframe_to_file({"vocabulary": list(train_unique_vocabulary)}, csv_path=None, text_path=vocabulary_path)
     """Store excluded data frame to file"""
-    store_dataframe_to_file({"removed": [str(i).encode('utf-8') for i in excluded_list]}, csv_path=None, text_path=removed_word_path)
+    store_dataframe_to_file({"removed": [str(i).encode('utf-8') for i in excluded_list]}, csv_path=None,
+                            text_path=removed_word_path)
 
     # TODO: Text files: vocabulary and removed words and return carriage
 
