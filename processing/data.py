@@ -6,95 +6,22 @@ import nltk
 import string
 import numpy as np
 import pandas as pd
+from datetime import datetime
 
-# pd.options.display.max_rows
+# avoiding ellipses
 pd.set_option('display.max_colwidth', sys.maxsize)
 pd.set_option('display.max_rows', sys.maxsize)
-from datetime import datetime
 
 excluded_list = """!"#$%&\()*+,:;<=>?@[\\]^`{|}~–—‐‑"""
 included_list = """'"-_’/."""
 
 
-def tokenize(untokenized_string):
-    tweet_tokenizer = nltk.TweetTokenizer()
-    # FIXME: Remove
-    # return nltk.word_tokenize(s)
-    return tweet_tokenizer.tokenize(untokenized_string)
-
-
-def preprocess_translate(sentences):
-    cleaned_sentence = []
-    excluded_symbols = [c for c in excluded_list]
-    for symbol in sentences:  # this is Df_pd for Df_np (text[:])
-        symbols = symbol.translate(str.maketrans('', '', string.digits))
-        symbols = symbols.translate(str.maketrans('', '', string.ascii_letters))
-        symbols = symbols.replace(" ", "")
-
-        for s in symbols:
-            if s not in excluded_symbols and s not in included_list:
-                excluded_symbols.append(s)
-
-    exclude = "".join(str(e) for e in excluded_symbols)
-
-    # FIXME: combined replace
-    for sentence in sentences:  # this is Df_pd for Df_np (text[:])
-        sentence = sentence.replace("’", "'")
-        sentence = sentence.replace("–", "-")
-        sentence = sentence.replace("—", "-")
-        sentence = sentence.replace("‐", "-")
-        new_sentence = sentence.translate(str.maketrans('', '', exclude))
-
-        # FIXME: DELETE
-        #     # new_sentence = new_sentence.translate(str.maketrans('', '', '0123456789'))
-        #     # new_sentence = symbols.translate(str.maketrans('', '', string.punctuation))
-        #     # new_sentence = new_sentence.translate(str.maketrans('', '', string.digits))
-        #     # new_sentence = re.sub(" +", " ", new_sentence)
-        #     # new_sentence = re.sub("[^\w\s]", "", new_sentence)  # remove punc.
-        if new_sentence != "":
-            cleaned_sentence.append(new_sentence)
-        # cleaned_sentence.append(new_sentence)
-    return cleaned_sentence, excluded_symbols
-
-
-def clean_tokenize(strings_list, combine):
-    tokenized = []
-    cleaned_string_list, all_symbols_list = preprocess_translate(strings_list)
-
-    for s in cleaned_string_list:
-        tokenized.append(tokenize(s))
-
-    # FIXME: DELETE
-    # counter = 0
-    # for s in cleaned_string_list:
-    #     tokens = tokenize(s)
-    #     tt = []
-    #     for t in tokens:
-    #         tt.append(t + " --> " + str(counter))
-    #     tokenized.append(tt)
-    #     counter += 1
-    #     # tokenized.append(tokenize(s))
-
-    if combine:
-        tokenized = np.concatenate(tokenized)
-    return tokenized, all_symbols_list
-
-
-def frequency_distribution(tokenized_arr):
-    if isinstance(tokenized_arr, list) and isinstance(tokenized_arr[0], list):
-        freq = [dict(nltk.FreqDist(t)) for t in tokenized_arr]
-        for e in freq:
-            if "-" in e:
-                # FIXME: "Add ' "
-                # FIXME: "Add _ "
-                # del e["-"]
-                pass
-        return freq
-
-    freq = dict(nltk.FreqDist(tokenized_arr))
-    # Fixme Re delete
-    # del freq["-"]
-    return freq
+def test_tokenizing():
+    global data
+    cleaned_sentences, symbols = preprocess_translate(sentences_list)
+    vocabulary_sentences_test, all_excluded_vocabulary_sentences_test = clean_tokenize(sentences_list, combine=False)
+    data = {"Original": sentences_list, "Cleaned": cleaned_sentences, "Tokenized": vocabulary_sentences_test}
+    pd.DataFrame(data).to_csv("../test_org_clean.txt", "\t")
 
 
 def extract_dataset(dataset_path, stopwords_path, filterBy="Created At", trainingKey="2018", testingKey="2019",
@@ -109,25 +36,69 @@ def extract_dataset(dataset_path, stopwords_path, filterBy="Created At", trainin
                 print(col_name, " was not of type string")
 
     data_categ = "data_cat"
-    category = list(data[filterBy])
-    extracted_category = [str(datetime.strptime(str(d), '%Y-%m-%d %H:%M:%S').year) for d in category]
+    extracted_category = [str(datetime.strptime(str(dt), '%Y-%m-%dt %H:%M:%S').year) for dt in list(data[filterBy])]
     data[data_categ] = extracted_category
 
     training_set = data[data[data_categ].isin([trainingKey.lower()])]
     testing_set = data[data[data_categ].isin([testingKey.lower()])]
-
     classes_freq = nltk.FreqDist(list(data[classes_col]))
     stop_words = pd.read_csv(stopwords_path, encoding="utf-8")
 
     return training_set, testing_set, classes_freq, stop_words
 
 
-def test_tokenizing():
-    global data
-    cleaned_sentences, symbols = preprocess_translate(sentences_list)
-    vocabulary_sentences_test, all_excluded_vocabulary_sentences_test = clean_tokenize(sentences_list, combine=False)
-    data = {"Original": sentences_list, "Cleaned": cleaned_sentences, "Tokenized": vocabulary_sentences_test}
-    pd.DataFrame(data).to_csv("../test_org_clean.txt", "\t")
+def tokenize(untokenized_string):
+    tweet_tokenizer = nltk.TweetTokenizer()
+    # FIXME: Remove
+    # return nltk.word_tokenize(s)
+    return tweet_tokenizer.tokenize(untokenized_string)
+
+
+def preprocess_translate(sentences):
+    cleaned_sentence = []
+    excluded_symbols = [c for c in excluded_list]
+    for symbol in sentences:
+        symbols = symbol.translate(str.maketrans('', '', (string.digits + string.ascii_letters))).replace(" ", "")
+        for s in symbols:
+            if s not in excluded_symbols and s not in included_list:
+                excluded_symbols.append(s)
+    exclude = "".join(str(e) for e in excluded_symbols)
+
+    # FIXME: combined replace
+    for sentence in sentences:
+        sentence = sentence.replace("’", "'").replace("–", "-").replace("—", "-").replace("‐", "-")
+        sentence = sentence.translate(str.maketrans('', '', exclude))
+        if sentence != "":
+            cleaned_sentence.append(sentence)
+    return cleaned_sentence, excluded_symbols
+
+
+def clean_tokenize(sentences_list, combine):
+    tokenized = []
+    cleaned_sentences, excluded_symbols = preprocess_translate(sentences_list)
+    for s in cleaned_sentences:
+        tokenized.append(tokenize(s))
+
+    if combine:
+        tokenized = np.concatenate(tokenized)
+    return tokenized, excluded_symbols
+
+
+def frequency_distribution(tokenized_words):
+    if isinstance(tokenized_words, list) and isinstance(tokenized_words[0], list):
+        freq = [dict(nltk.FreqDist(t)) for t in tokenized_words]
+        for s in freq:
+            if "-" in s:
+                # FIXME: "Add ' "
+                # FIXME: "Add _ "
+                # del s["-"]
+                pass
+        return freq
+
+    freq = dict(nltk.FreqDist(tokenized_words))
+    # Fixme Re delete
+    # del freq["-"]
+    return freq
 
 
 # TEST CODE
@@ -142,8 +113,8 @@ if __name__ == "__main__":
     vocabulary_col = "Title"
     classes_col = "Post Type"
 
-    train_set, test_set, classes_dict, stopwords = extract_dataset(dataset_path, stopword_path, data_filter, trainKey,
-                                                                   testKey, classes_col)
+    """Extracting data from the dataset files"""
+    train_set, test_set, classes_dict, stopwords = extract_dataset(dataset_path, stopword_path, data_filter, trainKey, testKey, classes_col)
 
     # Fixme
     # timer_start = time.perf_counter()
@@ -153,7 +124,7 @@ if __name__ == "__main__":
     vocabulary, all_excluded_vocabulary = clean_tokenize(sentences_list, combine=True)
     vocabulary_freq = frequency_distribution(vocabulary)
 
-    """Get all vocabulary words for each Label and frequency of each of the words"""
+    """Get all vocabulary words for each Label and frequency of each word"""
     classes_list = list(classes_dict.keys())
     classes_vocab = []
     classes_vocab_freq_dicts = []
@@ -187,7 +158,7 @@ if __name__ == "__main__":
     """Store dataframes to files"""
     training_dataframe = pd.DataFrame(training_data)
     training_dataframe.to_csv("../task1.txt", "\t")
-    with open("../task1_test.txt", "w") as f:
+    with open("../model-2018.txt", "w") as f:
         f.write(training_dataframe.__repr__())
 
     # FIXME: DELETE Test func
