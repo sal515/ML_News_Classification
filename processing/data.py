@@ -69,7 +69,6 @@ def preprocess_translate(sentences):
                 excluded_symbols.append(s)
     exclude = "".join(str(e) for e in excluded_symbols)
 
-    # FIXME: combined replace
     for sentence in sentences:
         sentence = sentence.replace("’", "'").replace("–", "-").replace("—", "-").replace("‐", "-")
         sentence = sentence.translate(str.maketrans('', '', exclude))
@@ -101,7 +100,7 @@ def frequency_distribution(tokenized_words):
         return freq
 
     freq = dict(nltk.FreqDist(tokenized_words))
-    # Fixme Re delete
+    # Fixme: Re-delete
     # del freq["-"]
     return freq
 
@@ -133,7 +132,7 @@ def generate_model(unique_vocabulary, data_set, classes_col, vocabulary_col, cla
         temp_class_probabilities.append(tem_prob)
 
     """"Creating Dataframe to save to txt file"""
-    # FIXME
+    # FIXME: remove counter not needed?
     # temp_data_dict = {"counter": list(range(0, unique_vocabulary.__len__())), "all_voc": list(unique_vocabulary)}
     for i in range(0, classes.__len__()):
         temp_data_dict[classes[i] + " freq"] = []
@@ -191,7 +190,7 @@ if __name__ == "__main__":
     """Get all vocabulary and frequency of all the words in TRAIN dataset"""
     train_unique_vocabulary, train_vocabulary_freq = clean_tokenize_freq_dist(train_set, vocabulary_col, True)
 
-    # FIXME
+    # FIXME testing data extraction not working
     """Get all vocabulary and frequency of all the words in TEST dataset"""
     # test_unique_vocabulary, test_vocabulary_freq = clean_tokenize_freq_dist(train_set, vocabulary_col, False)
 
@@ -207,12 +206,9 @@ if __name__ == "__main__":
 
     # FIXME: DELETE Test func
     # test_tokenizing()
-    # FIXME
     # print("freq: ", vocabulary_freq)
-    # FIXME
     # data = {"Cleaned": vocabulary}
     # pd.DataFrame(data).sort_values(by="Cleaned", ascending=True).to_csv("../test_cleaned.txt")
     # pd.DataFrame(data, columns=["Original", "New"]).to_csv("../test.csv")
-    # Fixme
     # timer_start = time.perf_counter()
     pass
