@@ -1,6 +1,6 @@
 # import re
 # import time
-import copy
+# import copy
 import sys
 import nltk
 import string
@@ -61,7 +61,7 @@ def tokenize(untokenized_string):
     return tweet_tokenizer.tokenize(untokenized_string)
 
 
-def preprocess_translate(sentences):
+def preprocess_translate(sentences, excluded_list):
     cleaned_sentence = []
     excluded_symbols = [c for c in excluded_list]
     for symbol in sentences:
@@ -81,7 +81,7 @@ def preprocess_translate(sentences):
 
 def clean_tokenize(sentences_list, combine):
     tokenized = []
-    cleaned_sentences, excluded_symbols = preprocess_translate(sentences_list)
+    cleaned_sentences, excluded_symbols = preprocess_translate(sentences_list, excluded_list)
     for s in cleaned_sentences:
         tokenized.append(tokenize(s))
 
@@ -116,6 +116,7 @@ def generate_model(unique_vocabulary, data_set, classes_col, vocabulary_col, cla
     classes = np.sort(np.array(list(classes_freq.keys())))
 
     """For every class, get the vocabulary and frequency of all all the words"""
+    excluded_vocab = None
     for cls in classes:
         temp_sentences = list(data_set[data_set[classes_col].isin([cls])][vocabulary_col])
         vocab, excluded_vocab = clean_tokenize(temp_sentences, combine=True)
@@ -158,7 +159,7 @@ def generate_model(unique_vocabulary, data_set, classes_col, vocabulary_col, cla
     for (k, v) in classes_freq.items():
         classes_prob[k] = v / total_classes
 
-    return temp_class_frequencies, temp_class_probabilities, classes_prob, temp_data_dict
+    return temp_class_frequencies, temp_class_probabilities, classes_prob, temp_data_dict, excluded_vocab
 
 
 def calc_total_cls_entries(classes_freq):
@@ -214,7 +215,7 @@ if __name__ == "__main__":
     # test_unique_vocabulary, test_vocabulary_freq = clean_tokenize_freq_dist(train_set, vocabulary_col, False)
 
     """Calculate conditional probabilities for each word in every class"""
-    train_cls_word_freq, train_cls_word_prob, train_cls_prob, training_data = generate_model(train_unique_vocabulary,
+    train_cls_word_freq, train_cls_word_prob, train_cls_prob, training_data, excluded_vocab = generate_model(train_unique_vocabulary,
                                                                                              train_set,
                                                                                              classes_col,
                                                                                              vocabulary_col,
@@ -226,7 +227,7 @@ if __name__ == "__main__":
     """Store vocabulary data frame to file"""
     store_dataframe_to_file({"vocabulary": list(train_unique_vocabulary)}, csv_path=None, text_path=vocabulary_path)
     """Store excluded data frame to file"""
-    store_dataframe_to_file({"removed": [str(i).encode('utf-8') for i in excluded_list]}, csv_path=None,
+    store_dataframe_to_file({"removed": [str(i).encode('utf-8') for i in excluded_vocab]}, csv_path=None,
                             text_path=removed_word_path)
 
     # TODO: Text files: vocabulary and removed words and return carriage
