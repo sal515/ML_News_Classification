@@ -18,9 +18,9 @@ included_list = """'"-_’/."""
 
 def test_tokenizing():
     global data
-    cleaned_sentences, symbols = preprocess_translate(sentences_list)
-    vocabulary_sentences_test, all_excluded_vocabulary_sentences_test = clean_tokenize(sentences_list, combine=False)
-    data = {"Original": sentences_list, "Cleaned": cleaned_sentences, "Tokenized": vocabulary_sentences_test}
+    cleaned_sentences, symbols = preprocess_translate(sentences)
+    vocabulary_sentences_test, all_excluded_vocabulary_sentences_test = clean_tokenize(sentences, combine=False)
+    data = {"Original": sentences, "Cleaned": cleaned_sentences, "Tokenized": vocabulary_sentences_test}
     pd.DataFrame(data).to_csv("../test_org_clean.txt", "\t")
 
 
@@ -105,55 +105,56 @@ def frequency_distribution(tokenized_words):
 if __name__ == "__main__":
     debug = 0
 
+    """Constant variables"""
     dataset_path = "../data/hns_2018_2019.csv"
     stopword_path = "../data/stopwords.txt"
     data_filter = "Created At"
-    trainKey = "2018"
-    testKey = "2019"
+    train_key = "2018"
+    test_Key = "2019"
     vocabulary_col = "Title"
     classes_col = "Post Type"
 
     """Extracting data from the dataset files"""
-    train_set, test_set, classes_dict, stopwords = extract_dataset(dataset_path, stopword_path, data_filter, trainKey, testKey, classes_col)
+    train_set, test_set, classes_dict, stopwords = extract_dataset(dataset_path, stopword_path, data_filter, train_key,
+                                                                   test_Key, classes_col)
 
-    # Fixme
-    # timer_start = time.perf_counter()
-
-    """Get all vocabulary words and frequency of all the words"""
-    sentences_list = list(train_set[vocabulary_col])
-    vocabulary, all_excluded_vocabulary = clean_tokenize(sentences_list, combine=True)
+    """Get all vocabulary and frequency of all the words in dataset"""
+    sentences = list(train_set[vocabulary_col])
+    vocabulary, all_excluded_vocabulary = clean_tokenize(sentences, combine=True)
     vocabulary_freq = frequency_distribution(vocabulary)
 
-    """Get all vocabulary words for each Label and frequency of each word"""
-    classes_list = list(classes_dict.keys())
-    classes_vocab = []
-    classes_vocab_freq_dicts = []
-    classes_vocab_prob = []
+    """For every class, get the vocabulary and frequency of all all the words"""
+    classes = list(classes_dict.keys())
+    # FIXME : Remove
+    # classes_vocab = []
+    class_frequencies = []
+    class_probabilities = []
 
-    for cls in classes_list:
-        temp_sentences_list = list(train_set[train_set[classes_col].isin([cls])][vocabulary_col])
+    for cls in classes:
+        temp_sentences = list(train_set[train_set[classes_col].isin([cls])][vocabulary_col])
         # FIXME : Not handling  excluded vocubulary yet
-        voc, excluded_voc = clean_tokenize(temp_sentences_list, combine=True)
-        classes_vocab.append(voc)
-        classes_vocab_freq_dicts.append(frequency_distribution(voc))
+        vocab, excluded_vocab = clean_tokenize(temp_sentences, combine=True)
+        # FIXME : Remove
+        # classes_vocab.append(voc)
+        class_frequencies.append(frequency_distribution(vocab))
 
-    for i in range(0, classes_list.__len__()):
-        prob_dict = dict()
-        for (k, v) in classes_vocab_freq_dicts[i].items():
-            prob_dict[k] = v / classes_dict[classes_list[i]]
-        classes_vocab_prob.append(prob_dict)
+    for i in range(0, classes.__len__()):
+        tem_probs = dict()
+        for (k, v) in class_frequencies[i].items():
+            tem_probs[k] = v / classes_dict[classes[i]]
+        class_probabilities.append(tem_probs)
 
     """"Creating Dataframe to save to txt file"""
     all_voc = np.sort(np.array(list(vocabulary_freq.keys())))
 
     training_data = {"counter": list(range(0, all_voc.__len__())), "all_voc": list(all_voc)}
-    for i in range(0, classes_list.__len__()):
-        training_data[classes_list[i]] = []
+    for i in range(0, classes.__len__()):
+        training_data[classes[i]] = []
         for w in list(all_voc):
-            if w not in classes_vocab_prob[i]:
-                training_data[classes_list[i]].append("-")
+            if w not in class_probabilities[i]:
+                training_data[classes[i]].append("-")
                 continue
-            training_data[classes_list[i]].append(classes_vocab_prob[i][w])
+            training_data[classes[i]].append(class_probabilities[i][w])
 
     """Store dataframes to files"""
     training_dataframe = pd.DataFrame(training_data)
@@ -172,5 +173,8 @@ if __name__ == "__main__":
     # pd.DataFrame(data).sort_values(by="Cleaned", ascending=True).to_csv("../test_cleaned.txt")
 
     # pd.DataFrame(data, columns=["Original", "New"]).to_csv("../test.csv")
+
+    # Fixme
+    # timer_start = time.perf_counter()
 
     pass
