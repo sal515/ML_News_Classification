@@ -152,9 +152,10 @@ def generate_model(unique_vocabulary, data_set, classes_col, vocabulary_col, cla
     return temp_class_frequencies, temp_class_probabilities, temp_data_dict
 
 
-def store_model_to_file(data_dict, csv_path, text_path):
+def store_dataframe_to_file(data_dict, csv_path, text_path):
     dataframe = pd.DataFrame(data_dict)
-    dataframe.to_csv(csv_path)
+    if csv_path is not None:
+        dataframe.to_csv(csv_path)
     with open(text_path, "w") as f:
         f.write(dataframe.__repr__())
 
@@ -182,6 +183,8 @@ if __name__ == "__main__":
     smoothing = 0.5
     csv_path = "../output/task1.csv"
     text_path = "../output/model-2018.txt"
+    vocabulary_path = "../output/vocabulary.txt"
+    removed_word_path = "../output/removed_word.txt"
 
     """Extracting data from the dataset files"""
     train_set, test_set, classes_dict, stopwords = extract_dataset(dataset_path, stop_words_path, data_filter,
@@ -200,7 +203,11 @@ if __name__ == "__main__":
                                                                            smoothing)
 
     """Store probabilities data frame to file"""
-    store_model_to_file(training_data, csv_path=csv_path, text_path=text_path)
+    store_dataframe_to_file(training_data, csv_path=csv_path, text_path=text_path)
+    """Store vocabulary data frame to file"""
+    store_dataframe_to_file({"vocabulary": list(train_unique_vocabulary)}, csv_path=None, text_path=vocabulary_path)
+    """Store excluded data frame to file"""
+    store_dataframe_to_file({"removed": [str(i).encode('utf-8') for i in excluded_list]}, csv_path=None, text_path=removed_word_path)
 
     # TODO: Text files: vocabulary and removed words and return carriage
 
