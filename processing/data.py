@@ -1,9 +1,15 @@
 # import re
 # import time
+import copy
+import sys
 import nltk
 import string
 import numpy as np
 import pandas as pd
+
+# pd.options.display.max_rows
+pd.set_option('display.max_colwidth', sys.maxsize)
+pd.set_option('display.max_rows', sys.maxsize)
 from datetime import datetime
 
 excluded_list = """!"#$%&\()*+,:;<=>?@[\\]^`{|}~–—‐‑"""
@@ -91,7 +97,8 @@ def frequency_distribution(tokenized_arr):
     return freq
 
 
-def extract_dataset(dataset_path, stopwords_path, filterBy="Created At", trainingKey="2018", testingKey="2019"):
+def extract_dataset(dataset_path, stopwords_path, filterBy="Created At", trainingKey="2018", testingKey="2019",
+                    classes_col="Post Type"):
     data = pd.read_csv(dataset_path, encoding="utf-8")
 
     for col_name in list(data.columns):
@@ -109,9 +116,10 @@ def extract_dataset(dataset_path, stopwords_path, filterBy="Created At", trainin
     training_set = data[data[data_categ].isin([trainingKey.lower()])]
     testing_set = data[data[data_categ].isin([testingKey.lower()])]
 
+    classes_freq = nltk.FreqDist(list(data[classes_col]))
     stop_words = pd.read_csv(stopwords_path, encoding="utf-8")
 
-    return training_set, testing_set, stop_words
+    return training_set, testing_set, classes_freq, stop_words
 
 
 def test_tokenizing():
@@ -128,82 +136,70 @@ if __name__ == "__main__":
 
     dataset_path = "../data/hns_2018_2019.csv"
     stopword_path = "../data/stopwords.txt"
-    training_test_filter = "Created At"
-    trainingKey = "2018"
-    testingKey = "2019"
-    vocabulary_col_name = "Title"
+    data_filter = "Created At"
+    trainKey = "2018"
+    testKey = "2019"
+    vocabulary_col = "Title"
+    classes_col = "Post Type"
 
-    training_set, testing_set, stopwords = extract_dataset(dataset_path, stopword_path, training_test_filter, trainingKey, testingKey)
+    train_set, test_set, classes_dict, stopwords = extract_dataset(dataset_path, stopword_path, data_filter, trainKey,
+                                                                   testKey, classes_col)
 
+    # Fixme
     # timer_start = time.perf_counter()
-    sentences_list = list(training_set[vocabulary_col_name])
+
+    """Get all vocabulary words and frequency of all the words"""
+    sentences_list = list(train_set[vocabulary_col])
+    vocabulary, all_excluded_vocabulary = clean_tokenize(sentences_list, combine=True)
+    vocabulary_freq = frequency_distribution(vocabulary)
+
+    """Get all vocabulary words for each Label and frequency of each of the words"""
+    classes_list = list(classes_dict.keys())
+    classes_vocab = []
+    classes_vocab_freq_dicts = []
+    classes_vocab_prob = []
+
+    for cls in classes_list:
+        temp_sentences_list = list(train_set[train_set[classes_col].isin([cls])][vocabulary_col])
+        # FIXME : Not handling  excluded vocubulary yet
+        voc, excluded_voc = clean_tokenize(temp_sentences_list, combine=True)
+        classes_vocab.append(voc)
+        classes_vocab_freq_dicts.append(frequency_distribution(voc))
+
+    for i in range(0, classes_list.__len__()):
+        prob_dict = dict()
+        for (k, v) in classes_vocab_freq_dicts[i].items():
+            prob_dict[k] = v / classes_dict[classes_list[i]]
+        classes_vocab_prob.append(prob_dict)
+
+    """"Creating Dataframe to save to txt file"""
+    all_voc = np.sort(np.array(list(vocabulary_freq.keys())))
+
+    training_data = {"counter": list(range(0, all_voc.__len__())), "all_voc": list(all_voc)}
+    for i in range(0, classes_list.__len__()):
+        training_data[classes_list[i]] = []
+        for w in list(all_voc):
+            if w not in classes_vocab_prob[i]:
+                training_data[classes_list[i]].append("-")
+                continue
+            training_data[classes_list[i]].append(classes_vocab_prob[i][w])
+
+    """Store dataframes to files"""
+    training_dataframe = pd.DataFrame(training_data)
+    training_dataframe.to_csv("../task1.txt", "\t")
+    with open("../task1_test.txt", "w") as f:
+        f.write(training_dataframe.__repr__())
 
     # FIXME: DELETE Test func
     # test_tokenizing()
 
-    vocabulary, all_excluded_vocabulary = clean_tokenize(sentences_list, combine=True)
-
-    vocabulary_freq = frequency_distribution(vocabulary)
-    print("freq: ", vocabulary_freq)
+    # FIXME
+    # print("freq: ", vocabulary_freq)
 
     # FIXME
-    data = {"Cleaned": vocabulary}
-    pd.DataFrame(data).sort_values(by="Cleaned", ascending=True).to_csv("../test_cleaned.txt")
+    # data = {"Cleaned": vocabulary}
+    # pd.DataFrame(data).sort_values(by="Cleaned", ascending=True).to_csv("../test_cleaned.txt")
 
     # pd.DataFrame(data, columns=["Original", "New"]).to_csv("../test.csv")
-
-    # post_types_list = list(training_set["Post Type"])
-    # # post_freq = dict(nltk.FreqDist(post_types_list))
-    # post_freq = nltk.FreqDist(post_types_list)
-
-    # FIXME
-    # Filter by "Post Type"
-    # story_titles = training_data[training_data["Post Type"].isin(["story"])]["Title"]
-
-    # story_titles_list = list(story_titles)
-    # story_titles_tokenized = clean_tokenize(story_titles_list)
-
-    # ====
-
-    # show_hn_titles = training_data[training_data["Post Type"].isin(["show_hn"])]["Title"]
-    # ask_hn_titles = training_data[training_data["Post Type"].isin(["ask_hn"])]["Title"]
-
-    # ====
-
-    if debug:
-        # clean_tokenize_freq(sentences)
-        #
-        t1 = [
-            "terminal terminal-terminal terminal terminal: ! #$%&\'()*+,-./:;<=>?@[\]^\_`{|}~  how the airport came to embody our national psychosis 213432324",
-            "yoo"]
-        # t2 = "not only is it possible to beat google, it could happen sooner"
-        #
-        # timer_start = time.perf_counter()
-        # t1_a = preprocess_translate([t1])
-        # print(t1_a)
-        # t1_aa = clean_tokenize(t1_a, True)
-        t1_aa = clean_tokenize(t1, True)
-        print(t1_aa)
-        t1_aaa = frequency_distribution(t1_aa)
-        print(t1_aaa)
-        # time_taken = time.perf_counter() - timer_start
-        # print("translating t1 : ", time_taken)
-        #
-        # timer_start = time.perf_counter()
-        # t1_b = preprocess_regex([t1])
-        # print(t1_b)
-        # time_taken = time.perf_counter() - timer_start
-        # print("regex t1 : ", time_taken)
-        #
-        # # import nltk
-        #
-        # words_tokenized = nltk.word_tokenize(t1_a[0])
-        # print("tokenized", words_tokenized)
-        # words_freq_dist = nltk.FreqDist(words_tokenized)
-        # print("frequency distribution of words", words_freq_dist.items())
-
-        # nltk.download('punkt')
-        # nltk.download('wordnet')
-        # print(nltk.word_tokenize(t1))
 
     pass
