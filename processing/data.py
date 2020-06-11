@@ -9,8 +9,13 @@ import pandas as pd
 from datetime import datetime
 
 # avoiding ellipses
-pd.set_option('display.max_colwidth', sys.maxsize)
+# pd.set_option('mode.sim_interactive', True)
+# pd.set_option('expand_frame_repr', True)
+# pd.set_option('display.column_space', 2)
+# pd.set_option('display.max_colwidth', sys.maxsize)
+pd.set_option('display.max_columns', sys.maxsize)
 pd.set_option('display.max_rows', sys.maxsize)
+pd.set_option('display.width', sys.maxsize)
 
 excluded_list = """!"#$%&\()*+,:;<=>?@[\\]^`{|}~–—‐‑"""
 included_list = """'"-_’/."""
@@ -104,10 +109,10 @@ def frequency_distribution(tokenized_words):
 def generate_model(unique_vocabulary, data_set, classes_col, vocabulary_col, classes_dict, smoothing):
     temp_class_frequencies = []
     temp_class_probabilities = []
-    temp_data_dict = {"all_vocabulary": list(unique_vocabulary)}
+    temp_data_dict = {"word": list(unique_vocabulary)}
 
     """List of all classes"""
-    classes = list(classes_dict.keys())
+    classes = np.sort(np.array(list(classes_dict.keys())))
 
     """For every class, get the vocabulary and frequency of all all the words"""
     for cls in classes:
@@ -128,14 +133,22 @@ def generate_model(unique_vocabulary, data_set, classes_col, vocabulary_col, cla
         temp_class_probabilities.append(tem_prob)
 
     """"Creating Dataframe to save to txt file"""
+    # FIXME
     # temp_data_dict = {"counter": list(range(0, unique_vocabulary.__len__())), "all_voc": list(unique_vocabulary)}
     for i in range(0, classes.__len__()):
+        temp_data_dict[classes[i] + " freq"] = []
         temp_data_dict[classes[i]] = []
         for w in unique_vocabulary:
             if w not in temp_class_probabilities[i]:
                 temp_data_dict[classes[i]].append("-")
+                temp_data_dict[classes[i] + " freq"].append("-")
+            else:
+                temp_data_dict[classes[i]].append(temp_class_probabilities[i][w])
+
+            if w not in temp_class_frequencies[i]:
+                temp_data_dict[classes[i] + " freq"].append(smoothing)
                 continue
-            temp_data_dict[classes[i]].append(temp_class_probabilities[i][w])
+            temp_data_dict[classes[i] + " freq"].append(temp_class_frequencies[i][w])
 
     return temp_class_frequencies, temp_class_probabilities, temp_data_dict
 
@@ -178,8 +191,9 @@ if __name__ == "__main__":
     """Get all vocabulary and frequency of all the words in TRAIN dataset"""
     train_unique_vocabulary, train_vocabulary_freq = clean_tokenize_freq_dist(train_set, vocabulary_col, True)
 
+    # FIXME
     """Get all vocabulary and frequency of all the words in TEST dataset"""
-    test_unique_vocabulary, test_vocabulary_freq = clean_tokenize_freq_dist(train_set, vocabulary_col, False)
+    # test_unique_vocabulary, test_vocabulary_freq = clean_tokenize_freq_dist(train_set, vocabulary_col, False)
 
     """Calculate conditional probabilities for each word in every class"""
     class_frequencies, class_probabilities, training_data = generate_model(train_unique_vocabulary, train_set,
@@ -188,6 +202,8 @@ if __name__ == "__main__":
 
     """Store probabilities data frame to file"""
     store_model_to_file(training_data, csv_path=csv_path, text_path=text_path)
+
+    # TODO: Text files: vocabulary and removed words and return carriage
 
     # FIXME: DELETE Test func
     # test_tokenizing()
