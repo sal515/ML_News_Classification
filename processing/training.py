@@ -10,6 +10,7 @@ from functools import reduce
 from datetime import datetime
 import processing.common as common
 
+# FIXME : Remove
 # avoiding ellipses
 # pd.set_option('mode.sim_interactive', True)
 # pd.set_option('expand_frame_repr', True)
@@ -19,11 +20,14 @@ pd.set_option('display.max_columns', sys.maxsize)
 pd.set_option('display.max_rows', sys.maxsize)
 pd.set_option('display.width', sys.maxsize)
 
-excluded_list = """!"#$%&\()*+,:;<=>?@[\\]^`{|}~–—‐‑"""
-included_list = """'"-_’/."""
+
+# FIXME : Remove
+
+# excluded_list = """!"#$%&\()*+,:;<=>?@[\\]^`{|}~–—‐‑"""
+# included_list = """'"-_’/."""
 
 
-def generate_model(unique_vocabulary, data_set, classes_col, vocabulary_col, classes_freq, excluded_list, smoothing):
+def generate_model(unique_vocabulary, data_set, classes_col, vocabulary_col, classes_freq, excluded_list, included_list, smoothing):
     temp_class_frequencies = []
     temp_class_probabilities = []
     temp_data_dict = {"word": list(unique_vocabulary)}

@@ -43,6 +43,7 @@ train_cls_word_freq, train_cls_word_prob, train_cls_prob, training_data, exclude
     vocabulary_col,
     train_cls_freq,
     excluded_list,
+    included_list,
     smoothing)
 
 """Store probabilities data frame to file"""
