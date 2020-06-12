@@ -27,7 +27,15 @@ pd.set_option('display.width', sys.maxsize)
 # included_list = """'"-_’/."""
 
 
-def generate_model(unique_vocabulary, data_set, classes_col, vocabulary_col, classes_freq, excluded_list, included_list, smoothing):
+def generate_model(
+        unique_vocabulary,
+        data_set,
+        classes_col,
+        vocabulary_col,
+        classes_freq,
+        excluded_list,
+        included_list,
+        smoothing):
     temp_class_frequencies = []
     temp_class_probabilities = []
     temp_data_dict = {"word": list(unique_vocabulary)}
@@ -39,7 +47,11 @@ def generate_model(unique_vocabulary, data_set, classes_col, vocabulary_col, cla
     excluded_vocab = None
     for cls in classes:
         temp_sentences = list(data_set[data_set[classes_col].isin([cls])][vocabulary_col])
-        vocab, excluded_vocab = common.clean_tokenize(temp_sentences, excluded_list, included_list, combine=True)
+        vocab, excluded_vocab = common.clean_tokenize(
+            temp_sentences,
+            excluded_list,
+            included_list,
+            combine=True)
         temp_class_frequencies.append(common.frequency_distribution(vocab))
 
     """Calculating probabilities with smoothing"""
@@ -82,9 +94,18 @@ def generate_model(unique_vocabulary, data_set, classes_col, vocabulary_col, cla
     return temp_class_frequencies, temp_class_probabilities, classes_prob, temp_data_dict, excluded_vocab
 
 
-def clean_tokenize_freq_dist(train_set, vocabulary_col, excluded_list, included_list, combine):
+def train_clean_tokenize_freq_dist(
+        train_set,
+        vocabulary_col,
+        excluded_list,
+        included_list,
+        combine):
     sentences = list(train_set[vocabulary_col])
-    vocabulary, excluded_symbols = common.clean_tokenize(sentences, excluded_list, included_list, combine=combine)
+    vocabulary, excluded_symbols = common.clean_tokenize(
+        sentences,
+        excluded_list,
+        included_list,
+        combine=combine)
     vocabulary_freq = common.frequency_distribution(vocabulary)
     unique_vocabulary = np.sort(np.array(list(vocabulary_freq.keys())))
     return unique_vocabulary, vocabulary_freq

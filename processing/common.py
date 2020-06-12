@@ -17,8 +17,13 @@ pd.set_option('display.max_rows', sys.maxsize)
 pd.set_option('display.width', sys.maxsize)
 
 
-def extract_dataset(dataset_path, stopwords_path, filterBy="Created At", trainingKey="2018", testingKey="2019",
-                    classes_col="Post Type"):
+def extract_dataset(
+        dataset_path,
+        stopwords_path,
+        filterBy,
+        trainingKey,
+        testingKey,
+        classes_col):
     data = pd.read_csv(dataset_path, encoding="utf-8")
 
     for col_name in list(data.columns):

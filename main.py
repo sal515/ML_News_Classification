@@ -18,7 +18,7 @@ text_path = "./output/model-2018.txt"
 vocabulary_path = "./output/vocabulary.txt"
 removed_word_path = "./output/removed_word.txt"
 
-"""Extracting data from the dataset files"""
+"""Get training and testing dataset from the dataset files"""
 train_set, test_set, train_cls_freq, test_cls_freq, stopwords = common.extract_dataset(
     dataset_path,
     stop_words_path,
@@ -28,14 +28,14 @@ train_set, test_set, train_cls_freq, test_cls_freq, stopwords = common.extract_d
     classes_col)
 
 """Get all vocabulary and frequency of all the words in TRAIN dataset"""
-train_unique_vocabulary, train_vocabulary_freq = train.clean_tokenize_freq_dist(train_set, vocabulary_col,
-                                                                                excluded_list, included_list, True)
+train_unique_vocabulary, train_vocabulary_freq = train.train_clean_tokenize_freq_dist(
+    train_set,
+    vocabulary_col,
+    excluded_list,
+    included_list,
+    True)
 
-# FIXME testing data extraction not working
-"""Get all vocabulary and frequency of all the words in TEST dataset"""
-# test_unique_vocabulary, test_vocabulary_freq = clean_tokenize_freq_dist(train_set, vocabulary_col, False)
-
-"""Calculate conditional probabilities for each word in every class"""
+"""Get conditional probabilities for each word in every class P(w|cls)"""
 train_cls_word_freq, train_cls_word_prob, train_cls_prob, training_data, excluded_vocab = train.generate_model(
     train_unique_vocabulary,
     train_set,
@@ -47,9 +47,23 @@ train_cls_word_freq, train_cls_word_prob, train_cls_prob, training_data, exclude
     smoothing)
 
 """Store probabilities data frame to file"""
-common.store_dataframe_to_file(training_data, csv_path=csv_path, text_path=text_path)
+common.store_dataframe_to_file(
+    training_data,
+    csv_path=csv_path,
+    text_path=text_path)
+
 """Store vocabulary data frame to file"""
-common.store_dataframe_to_file({"vocabulary": list(train_unique_vocabulary)}, csv_path=None, text_path=vocabulary_path)
+common.store_dataframe_to_file(
+    {"vocabulary": list(train_unique_vocabulary)},
+    csv_path=None,
+    text_path=vocabulary_path)
+
 """Store excluded data frame to file"""
-common.store_dataframe_to_file({"removed": [str(i).encode('utf-8') for i in excluded_vocab]}, csv_path=None,
-                               text_path=removed_word_path)
+common.store_dataframe_to_file(
+    {"removed": [str(i).encode('utf-8') for i in excluded_vocab]},
+    csv_path=None,
+    text_path=removed_word_path)
+
+# FIXME testing data extraction not working
+"""Get all vocabulary and frequency of all the words in TEST dataset"""
+# test_unique_vocabulary, test_vocabulary_freq = clean_tokenize_freq_dist(train_set, vocabulary_col, False)
