@@ -1,3 +1,6 @@
+import numpy as np
+import pandas as pd
+
 import processing.common
 import processing.training as train
 import processing.common as common
@@ -37,7 +40,7 @@ train_unique_vocabulary, train_vocabulary_freq = processing.common.clean_tokeniz
     True)
 
 """Get conditional probabilities for each word in every class P(w|cls)"""
-train_cls_word_freq, train_cls_word_prob, train_cls_prob, training_data, excluded_vocab = train.generate_model(
+train_cls_word_freq, train_cls_word_prob, train_cls_prob, training_data, excluded_vocab, cls_list, model_keys = train.generate_model(
     train_unique_vocabulary,
     train_set,
     classes_col,
@@ -73,3 +76,27 @@ test_unique_vocabulary, test_vocabulary_freq = processing.common.clean_tokenize_
     excluded_list,
     included_list,
     False)
+
+# TODO : refactor to functions
+"""Conditional probability table as dictionary to easily access the probabilities"""
+if "word" in training_data:
+    model = pd.DataFrame(training_data, index=training_data["word"]).to_dict(orient="index")
+else:
+    raise Exception("Error: word column is not found in training data")
+
+"""Score calculations"""
+classification_dt = {"Sentence Vocab": test_vocabulary_freq}
+
+for d in test_vocabulary_freq:
+    cls = "ask_hn"
+    # for cls in tracl
+    score = 0
+    for w in d.items():
+        if w[0] in model:
+            score += model[w[0]][cls]
+    print(d, score)
+
+
+# score = model[list(test_vocabulary_freq[0].items())[0][0]]["ask_hn"]
+
+# classification_df = pd.DataFrame()

@@ -34,6 +34,7 @@ def generate_model(
         smoothing):
     temp_class_frequencies = []
     temp_class_probabilities = []
+    cls_keys = []
     temp_data_dict = {"word": list(unique_vocabulary)}
 
     """List of all classes"""
@@ -66,6 +67,8 @@ def generate_model(
     # FIXME: remove counter not needed?
     # temp_data_dict = {"counter": list(range(0, unique_vocabulary.__len__())), "all_voc": list(unique_vocabulary)}
     for i in range(0, classes.__len__()):
+        cls_keys.append(classes[i] + " freq")
+        cls_keys.append(classes[i])
         temp_data_dict[classes[i] + " freq"] = []
         temp_data_dict[classes[i]] = []
         for w in unique_vocabulary:
@@ -87,7 +90,7 @@ def generate_model(
     for (k, v) in classes_freq.items():
         classes_prob[k] = v / total_classes
 
-    return temp_class_frequencies, temp_class_probabilities, classes_prob, temp_data_dict, excluded_vocab
+    return temp_class_frequencies, temp_class_probabilities, classes_prob, temp_data_dict, excluded_vocab, classes, cls_keys
 
 
 # TEST CODE
