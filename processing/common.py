@@ -109,3 +109,26 @@ def store_dataframe_to_file(data_dict, csv_path, text_path):
         dataframe.to_csv(csv_path)
     with open(text_path, "w") as f:
         f.write(dataframe.__repr__())
+
+
+def clean_tokenize_freq_dist(
+        data_set,
+        vocabulary_col,
+        excluded_list,
+        included_list,
+        combine):
+    sentences = list(data_set[vocabulary_col])
+    vocabulary, excluded_symbols = clean_tokenize(
+        sentences,
+        excluded_list,
+        included_list,
+        combine=combine)
+    vocabulary_freq = frequency_distribution(vocabulary)
+
+    if isinstance(vocabulary_freq, list) and isinstance(vocabulary_freq[0], dict):
+        unique_vocabulary = np.sort(
+            np.array(list(np.concatenate(list(map(lambda d: list(d.keys()), vocabulary_freq))))))
+        return unique_vocabulary, vocabulary_freq
+
+    unique_vocabulary = np.sort(np.array(list(vocabulary_freq.keys())))
+    return unique_vocabulary, vocabulary_freq

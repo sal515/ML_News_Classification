@@ -1,3 +1,4 @@
+import processing.common
 import processing.training as train
 import processing.common as common
 
@@ -28,7 +29,7 @@ train_set, test_set, train_cls_freq, test_cls_freq, stopwords = common.extract_d
     classes_col)
 
 """Get all vocabulary and frequency of all the words in TRAIN dataset"""
-train_unique_vocabulary, train_vocabulary_freq = train.train_clean_tokenize_freq_dist(
+train_unique_vocabulary, train_vocabulary_freq = processing.common.clean_tokenize_freq_dist(
     train_set,
     vocabulary_col,
     excluded_list,
@@ -66,4 +67,9 @@ common.store_dataframe_to_file(
 
 # FIXME testing data extraction not working
 """Get all vocabulary and frequency of all the words in TEST dataset"""
-# test_unique_vocabulary, test_vocabulary_freq = clean_tokenize_freq_dist(train_set, vocabulary_col, False)
+test_unique_vocabulary, test_vocabulary_freq = processing.common.clean_tokenize_freq_dist(
+    test_set,
+    vocabulary_col,
+    excluded_list,
+    included_list,
+    False)

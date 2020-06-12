@@ -2,12 +2,8 @@
 # import time
 # import copy
 import sys
-import nltk
-import string
 import numpy as np
 import pandas as pd
-from functools import reduce
-from datetime import datetime
 import processing.common as common
 
 # FIXME : Remove
@@ -92,23 +88,6 @@ def generate_model(
         classes_prob[k] = v / total_classes
 
     return temp_class_frequencies, temp_class_probabilities, classes_prob, temp_data_dict, excluded_vocab
-
-
-def train_clean_tokenize_freq_dist(
-        train_set,
-        vocabulary_col,
-        excluded_list,
-        included_list,
-        combine):
-    sentences = list(train_set[vocabulary_col])
-    vocabulary, excluded_symbols = common.clean_tokenize(
-        sentences,
-        excluded_list,
-        included_list,
-        combine=combine)
-    vocabulary_freq = common.frequency_distribution(vocabulary)
-    unique_vocabulary = np.sort(np.array(list(vocabulary_freq.keys())))
-    return unique_vocabulary, vocabulary_freq
 
 
 # TEST CODE
