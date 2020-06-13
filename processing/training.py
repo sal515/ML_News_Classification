@@ -84,7 +84,7 @@ def generate_model(
             temp_data_dict[classes[i] + " freq"].append(temp_class_frequencies[i][w])
 
     """Calculating class probabilites"""
-    # FIXME something wrong with class freq
+    # FIXME something wrong with class freq - I think it is fixed <<<
     total_classes = common.calc_total_cls_entries(classes_freq)
     classes_prob = classes_freq.copy()
     for (k, v) in classes_freq.items():
