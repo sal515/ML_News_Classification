@@ -38,6 +38,8 @@ def extract_dataset(
     extracted_category = [str(datetime.strptime(str(dt), '%Y-%m-%d %H:%M:%S').year) for dt in list(data[filterBy])]
     data[data_category] = extracted_category
 
+    # FIXME: Do I need to do cls freq here?
+
     """Extract all training dataset according to filter provided as parameter"""
     training_set = data[data[data_category].isin([trainingKey.lower()])]
     train_classes_freq = nltk.FreqDist(list(training_set[classes_col]))
@@ -84,7 +86,6 @@ def clean_tokenize(sentences_list, excluded_list, included_list, combine):
     """Tokenize each title to a list of words after cleaning"""
     for s in cleaned_sentences:
         tokenized.append(tokenize(s))
-
     if combine:
         tokenized = np.concatenate(tokenized)
     return tokenized, excluded_symbols
@@ -129,6 +130,7 @@ def clean_tokenize_freq_dist(
         combine):
     """List of titles/sentences in the dataset"""
     sentences = list(data_set[vocabulary_col])
+
     """Create list of vocabulary and excluded symbols"""
     vocabulary, excluded_symbols = clean_tokenize(
         sentences,

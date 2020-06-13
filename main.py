@@ -86,10 +86,10 @@ test_unique_vocabulary, test_vocabulary_freq = processing.common.clean_tokenize_
     included_list,
     False)
 
-"""---------Testing---------"""
-
 """Conditional probability table as dictionary to easily access the probabilities"""
 model_df = train.generate_model_df(trained_data)
+
+"""---------Testing---------"""
 
 """Score calculations"""
 cls_scores = classifier.calculate_scores(

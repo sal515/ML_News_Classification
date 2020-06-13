@@ -21,6 +21,7 @@ def generate_model(
         excluded_list,
         included_list,
         smoothing):
+
     temp_class_frequencies = []
     temp_class_probabilities = []
     cls_keys = []
