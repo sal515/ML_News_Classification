@@ -1,15 +1,4 @@
-# import re
-# import time
-# import copy
 import math
-import sys
-import nltk
-import string
-import numpy as np
-import pandas as pd
-from functools import reduce
-from datetime import datetime
-import processing.common as common
 
 
 def calculate_scores(test_vocabulary_freq, train_cls_list, train_cls_prob, model_df, log_base):

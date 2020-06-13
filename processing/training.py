@@ -1,27 +1,15 @@
-# import re
-# import time
-# import copy
 import sys
 import numpy as np
 import pandas as pd
 import processing.common as common
 
-# FIXME : Remove
-# avoiding ellipses
 # pd.set_option('mode.sim_interactive', True)
 # pd.set_option('expand_frame_repr', True)
 # pd.set_option('display.column_space', 2)
-# pd.set_option('display.max_colwidth', sys.maxsize)
-
+pd.set_option('display.max_colwidth', sys.maxsize)
 pd.set_option('display.max_columns', sys.maxsize)
 pd.set_option('display.max_rows', sys.maxsize)
 pd.set_option('display.width', sys.maxsize)
-
-
-# FIXME : Remove
-
-# excluded_list = """!"#$%&\()*+,:;<=>?@[\\]^`{|}~–—‐‑"""
-# included_list = """'"-_’/."""
 
 
 def generate_model(
@@ -94,8 +82,8 @@ def generate_model(
     return temp_class_frequencies, temp_class_probabilities, classes_prob, temp_data_dict, excluded_vocab, classes, cls_keys
 
 
-"""Conditional probability table as dictionary to easily access the probabilities"""
 def generate_model_df(training_data):
+    """Conditional probability table as dictionary to easily access the probabilities"""
     if "word" in training_data:
         model_df = pd.DataFrame(training_data, index=training_data["word"]).to_dict(orient="index")
     else:

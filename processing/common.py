@@ -6,12 +6,10 @@ import pandas as pd
 from functools import reduce
 from datetime import datetime
 
-# FIXME: Remove
-# avoiding ellipses
 # pd.set_option('mode.sim_interactive', True)
 # pd.set_option('expand_frame_repr', True)
 # pd.set_option('display.column_space', 2)
-# pd.set_option('display.max_colwidth', sys.maxsize)
+pd.set_option('display.max_colwidth', sys.maxsize)
 pd.set_option('display.max_columns', sys.maxsize)
 pd.set_option('display.max_rows', sys.maxsize)
 pd.set_option('display.width', sys.maxsize)

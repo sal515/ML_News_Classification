@@ -1,9 +1,8 @@
 import nltk
-
 import processing.common
 import processing.training as train
 import processing.common as common
-from processing.naive_bays_classifier import calculate_scores, classify, output_result_dict
+import processing.naive_bays_classifier as classifier
 
 excluded_list = """!"#$%&\()*+,:;<=>?@[\\]^`{|}~–—‐‑"""
 included_list = """'"-_’/."""
@@ -89,7 +88,7 @@ test_unique_vocabulary, test_vocabulary_freq = processing.common.clean_tokenize_
 model_df = train.generate_model_df(trained_data)
 
 """Score calculations"""
-cls_scores = calculate_scores(
+cls_scores = classifier.calculate_scores(
     test_vocabulary_freq,
     train_cls_list,
     train_cls_prob,
@@ -97,10 +96,10 @@ cls_scores = calculate_scores(
     log_base)
 
 """Classification by classifier : Determine class for each test sentence in the test set"""
-classification_out_list = classify(train_cls_list, cls_scores)
+classification_out_list = classifier.classify(train_cls_list, cls_scores)
 
 """ Adding columns for dataframe of test ouptut"""
-classification_dt = output_result_dict(
+classification_dt = classifier.output_result_dict(
     test_set,
     test_vocabulary_freq,
     classification_out_list,
