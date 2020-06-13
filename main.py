@@ -9,16 +9,20 @@ included_list = """'"-_’/."""
 
 debug = 0
 
-"""Constant variables"""
-log_base = 10
+"""Dataset File paths"""
 dataset_path = "./data/hns_2018_2019.csv"
 stop_words_path = "./data/stopwords.txt"
+
+"""Constant variables"""
 data_filter = "Created At"
 train_key = "2018"
 test_Key = "2019"
 vocabulary_col = "Title"
 classes_col = "Post Type"
 smoothing = 0.5
+log_base = 10
+
+"""Output file paths"""
 train_csv_path = "./output/task1.csv"
 train_text_path = "./output/model-2018.txt"
 vocabulary_path = "./output/vocabulary.txt"
@@ -59,7 +63,7 @@ train_cls_word_freq, train_cls_word_prob, train_cls_prob, trained_data, excluded
 """Store probabilities data frame to file"""
 common.store_dataframe_to_file(
     trained_data,
-    csv_path=train_csv_path,
+    csv_path=train_csv_path if debug else None,
     text_path=train_text_path)
 
 """Store vocabulary data frame to file"""
@@ -108,10 +112,10 @@ classification_dt = classifier.output_result_dict(
     debug)
 
 """Baseline result output"""
-print("Baseline result frequencies", nltk.FreqDist(classification_dt["right_wrong"]).__repr__())
+print("Baseline result frequencies: ", nltk.FreqDist(classification_dt["right_wrong"]).__repr__())
 
 """Creating the testing output dataframe with all the required columns"""
 common.store_dataframe_to_file(
     classification_dt,
-    csv_path=result_csv_path,
+    csv_path=result_csv_path if debug else None,
     text_path=result_text_path)
