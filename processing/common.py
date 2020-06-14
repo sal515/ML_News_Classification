@@ -127,7 +127,10 @@ def clean_tokenize_freq_dist(
         vocabulary_col,
         excluded_list,
         included_list,
+        isTrain,
         combine):
+    """This function returns the (unique words in vocabulary) if isTrain==True otherwise (frequency of words in vocabulary)"""
+
     """List of titles/sentences in the dataset"""
     sentences = list(data_set[vocabulary_col])
 
@@ -143,11 +146,14 @@ def clean_tokenize_freq_dist(
     """Create list frequency of the words in the vocabulary """
     vocabulary_freq = frequency_distribution(vocabulary)
 
+    if not isTrain:
+        return vocabulary_freq
+
     """Create list of unique vocabulary"""
     if isinstance(vocabulary_freq, list) and isinstance(vocabulary_freq[0], dict):
         unique_vocabulary = np.sort(
             np.array(list(np.concatenate(list(map(lambda d: list(d.keys()), vocabulary_freq))))))
-        return unique_vocabulary, vocabulary_freq
+        return unique_vocabulary
 
     unique_vocabulary = np.sort(np.array(list(vocabulary_freq.keys())))
-    return unique_vocabulary, vocabulary_freq
+    return unique_vocabulary

@@ -43,12 +43,13 @@ train_set, test_set, train_cls_freq, stopwords = common.extract_dataset(
     param.classes_col)
 
 """Get all vocabulary and frequency of all the words in TRAIN dataset"""
-train_unique_vocabulary, train_vocabulary_freq = processing.common.clean_tokenize_freq_dist(
+train_unique_vocabulary = processing.common.clean_tokenize_freq_dist(
     train_set,
     param.vocabulary_col,
     param.excluded_list,
     param.included_list,
-    True)
+    isTrain=True,
+    combine=True)
 
 """Get conditional probabilities for each word in every class P(w|cls)"""
 train_cls_prob, trained_data, train_excluded_vocab, train_cls_list = train.generate_model(
@@ -80,12 +81,13 @@ common.store_dataframe_to_file(
     text_path=param.removed_word_path)
 
 """Get all vocabulary and frequency of all the words in TEST dataset"""
-test_unique_vocabulary, test_vocabulary_freq = processing.common.clean_tokenize_freq_dist(
+test_vocabulary_freq = processing.common.clean_tokenize_freq_dist(
     test_set,
     param.vocabulary_col,
     param.excluded_list,
     param.included_list,
-    False)
+    isTrain=False,
+    combine=False)
 
 """Conditional probability table as dictionary to easily access the probabilities"""
 train_model_df = train.generate_model_df(trained_data)
