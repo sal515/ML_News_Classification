@@ -121,7 +121,6 @@ def store_dataframe_to_file(data_dict, csv_path, text_path):
 
 def clean_tokenize_wrapper(
         data_set,
-
         vocabulary_col,
         excluded_list,
         included_list,
@@ -143,33 +142,37 @@ def clean_tokenize_wrapper(
 
     is_vocab_list_of_lists = False
 
-    if trainType == "baseline":
-        """Create list frequency of the words in the vocabulary """
-        vocabulary_freq = frequency_distribution(vocabulary)
-
-        if not isTrain:
-            return vocabulary_freq
-
-        """Create list of unique vocabulary"""
-        if isinstance(vocabulary_freq, list) and isinstance(vocabulary_freq[0], dict):
-            unique_vocabulary = np.sort(
-                np.array(list(np.concatenate(list(map(lambda d: list(d.keys()), vocabulary_freq))))))
-            return unique_vocabulary
-
-        unique_vocabulary = np.sort(np.array(list(vocabulary_freq.keys())))
-        return unique_vocabulary
+    # if trainType == "baseline":
+    #     """Create list frequency of the words in the vocabulary """
+    #     vocabulary_freq = frequency_distribution(vocabulary)
+    #
+    #     """Checking if the vocabulary_freq is list of lists"""
+    #     is_vocab_list_of_lists = isinstance(vocabulary_freq, list) and isinstance(vocabulary_freq[0], dict)
+    #
+    #     """if it is not train, unique vocabulary doesn't have to be generated"""
+    #     if not isTrain:
+    #         return vocabulary_freq
+    #
+    #     """Create list of unique vocabulary"""
+    #     if is_vocab_list_of_lists:
+    #         unique_vocabulary = np.sort(
+    #             np.array(list(np.concatenate(list(map(lambda d: list(d.keys()), vocabulary_freq))))))
+    #         return unique_vocabulary
+    #
+    #     unique_vocabulary = np.sort(np.array(list(vocabulary_freq.keys())))
+    #     return unique_vocabulary
 
     # FIXME: Remember to handle Train call of this function
     # FIXME: Test uses unique_vocab. -> uses vocabulary_freq
     # FIXME: 1. Stop words filtering - generate unique_vocab. by filtering the stop words here
 
-    elif trainType == "stopwords":
-        """Create list frequency of the words in the vocabulary """
-        vocabulary_freq = frequency_distribution(vocabulary)
+    """Create list frequency of the words in the vocabulary """
+    vocabulary_freq = frequency_distribution(vocabulary)
 
-        """Checking if the vocabulary_freq is list of lists"""
-        is_vocab_list_of_lists = isinstance(vocabulary_freq, list) and isinstance(vocabulary_freq[0], dict)
+    """Checking if the vocabulary_freq is list of lists"""
+    is_vocab_list_of_lists = isinstance(vocabulary_freq, list) and isinstance(vocabulary_freq[0], dict)
 
+    if trainType == "stopwords":
         """Removing stop words from the vocabulary"""
         if is_vocab_list_of_lists:
             """Remove stopwords from the vocabulary"""
@@ -182,18 +185,20 @@ def clean_tokenize_wrapper(
                 if word in vocabulary_freq:
                     del vocabulary_freq[word]
 
-        """if it is not train, unique vocabulary doesn't have to be generated"""
-        if not isTrain:
-            return vocabulary_freq
 
-        """Create list of unique vocabulary"""
-        if is_vocab_list_of_lists:
-            unique_vocabulary = np.sort(
-                np.array(list(np.concatenate(list(map(lambda d: list(d.keys()), vocabulary_freq))))))
-            return unique_vocabulary
 
-        unique_vocabulary = np.sort(np.array(list(vocabulary_freq.keys())))
+    """if it is not train, unique vocabulary doesn't have to be generated"""
+    if not isTrain:
+        return vocabulary_freq
+
+    """Create list of unique vocabulary"""
+    if is_vocab_list_of_lists:
+        unique_vocabulary = np.sort(
+            np.array(list(np.concatenate(list(map(lambda d: list(d.keys()), vocabulary_freq))))))
         return unique_vocabulary
+
+    unique_vocabulary = np.sort(np.array(list(vocabulary_freq.keys())))
+    return unique_vocabulary
 
     # FIXME: 2. Word length filtering - generate unique_vocab. by filtering the words outside the len size
     # FIXME: 3. Infrequent word filtering - ??

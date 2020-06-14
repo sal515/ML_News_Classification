@@ -18,6 +18,7 @@ class param:
 
     # trainType = "baseline"
     trainType = "stopwords"
+    trainType = "word_length"
 
     """Output file paths"""
     train_csv_path = "./output/task1.csv"
