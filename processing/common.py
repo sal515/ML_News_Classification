@@ -63,18 +63,20 @@ def preprocess_translate(sentences, excluded_list, included_list):
     """This function cleans the letters provided in the excluded list from the titles"""
     cleaned_sentence = []
     excluded_symbols = [c for c in excluded_list]
-    for symbol in sentences:
-        symbols = symbol.translate(str.maketrans('', '', (string.digits + string.ascii_letters))).replace(" ", "")
-        for s in symbols:
-            if s not in excluded_symbols and s not in included_list:
-                excluded_symbols.append(s)
+    for sentence in sentences:
+        symbols = sentence.translate(str.maketrans('', '', (string.digits + string.ascii_letters))).replace(" ", "")
+        for symbol in symbols:
+            if symbol not in excluded_symbols and symbol not in included_list:
+                excluded_symbols.append(symbol)
     exclude = "".join(str(e) for e in excluded_symbols)
 
     for sentence in sentences:
         sentence = sentence.replace("’", "'").replace("–", "-").replace("—", "-").replace("‐", "-")
         sentence = sentence.translate(str.maketrans('', '', exclude))
-        if sentence != "":
-            cleaned_sentence.append(sentence)
+        # TODO: Why can't i add empty sentence
+        # if sentence != "":
+        #     cleaned_sentence.append(sentence)
+        cleaned_sentence.append(sentence)
     return cleaned_sentence, excluded_symbols
 
 
@@ -84,8 +86,8 @@ def clean_tokenize(sentences_list, excluded_list, included_list, combine):
     cleaned_sentences, excluded_symbols = preprocess_translate(sentences_list, excluded_list, included_list)
 
     """Tokenize each title to a list of words after cleaning"""
-    for s in cleaned_sentences:
-        tokenized.append(tokenize(s))
+    for sentence in cleaned_sentences:
+        tokenized.append(tokenize(sentence))
     if combine:
         tokenized = np.concatenate(tokenized)
     return tokenized, excluded_symbols
