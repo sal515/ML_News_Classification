@@ -80,7 +80,9 @@ def generate_model(
     for (k, v) in classes_freq.items():
         classes_prob[k] = v / total_classes
 
-    return temp_class_frequencies, temp_class_probabilities, classes_prob, temp_data_dict, excluded_vocab, classes, cls_keys
+    return  classes_prob, temp_data_dict, excluded_vocab, classes
+    # FIXME : Check if i need to return all these
+    # return temp_class_frequencies, temp_class_probabilities, classes_prob, temp_data_dict, excluded_vocab, classes, cls_keys
 
 
 def generate_model_df(training_data):

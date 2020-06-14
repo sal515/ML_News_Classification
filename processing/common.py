@@ -46,9 +46,9 @@ def extract_dataset(
 
     """Extract all testing dataset according to filter provided as parameter"""
     testing_set = data[data[data_category].isin([testingKey.lower()])]
-    test_classes_freq = nltk.FreqDist(list(testing_set[classes_col]))
+    # test_classes_freq = nltk.FreqDist(list(testing_set[classes_col]))
 
-    return training_set, testing_set, train_classes_freq, test_classes_freq, stop_words
+    return training_set, testing_set, train_classes_freq, stop_words
 
 
 def tokenize(untokenized_string):

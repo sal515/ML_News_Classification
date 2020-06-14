@@ -34,7 +34,7 @@ from processing.input import param
 """---------Training---------"""
 
 """Get training and testing dataset from the dataset files"""
-train_set, test_set, train_cls_freq, train_cls_freq, stopwords = common.extract_dataset(
+train_set, test_set, train_cls_freq, stopwords = common.extract_dataset(
     param.dataset_path,
     param.stop_words_path,
     param.data_filter,
@@ -51,7 +51,7 @@ train_unique_vocabulary, train_vocabulary_freq = processing.common.clean_tokeniz
     True)
 
 """Get conditional probabilities for each word in every class P(w|cls)"""
-train_cls_word_freq, train_cls_word_prob, train_cls_prob, trained_data, train_excluded_vocab, train_cls_list, train_model_keys = train.generate_model(
+train_cls_prob, trained_data, train_excluded_vocab, train_cls_list = train.generate_model(
     train_unique_vocabulary,
     train_set,
     param.classes_col,
@@ -100,14 +100,10 @@ test_cls_scores = classifier.calculate_scores(
     train_model_df,
     param.log_base)
 
-"""Classification by classifier : Determine class for each test sentence in the test set"""
-test_classification_out_list = classifier.classify(train_cls_list, test_cls_scores)
-
 """ Adding columns for dataframe of test ouptut"""
-test_classification_dt = classifier.output_result_dict(
+test_classification_dt = classifier.classify_and_generate_result(
     test_set,
     test_vocabulary_freq,
-    test_classification_out_list,
     train_cls_list,
     test_cls_scores,
     param.debug)
