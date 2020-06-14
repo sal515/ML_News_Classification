@@ -43,7 +43,7 @@ train_set, test_set, train_cls_freq, stopwords = common.extract_dataset(
     param.classes_col)
 
 """Get all vocabulary and frequency of all the words in TRAIN dataset"""
-train_unique_vocabulary = processing.common.clean_tokenize_freq_dist(
+train_unique_vocabulary = processing.common.clean_tokenize_wrapper(
     train_set,
     param.vocabulary_col,
     param.excluded_list,
@@ -81,7 +81,7 @@ common.store_dataframe_to_file(
     text_path=param.removed_word_path)
 
 """Get all vocabulary and frequency of all the words in TEST dataset"""
-test_vocabulary_freq = processing.common.clean_tokenize_freq_dist(
+test_vocabulary_freq = processing.common.clean_tokenize_wrapper(
     test_set,
     param.vocabulary_col,
     param.excluded_list,

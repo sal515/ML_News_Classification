@@ -122,7 +122,7 @@ def store_dataframe_to_file(data_dict, csv_path, text_path):
         f.write(dataframe.__repr__())
 
 
-def clean_tokenize_freq_dist(
+def clean_tokenize_wrapper(
         data_set,
         vocabulary_col,
         excluded_list,
