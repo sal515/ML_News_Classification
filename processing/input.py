@@ -16,6 +16,9 @@ class param:
     smoothing = 0.5
     log_base = 10
 
+    # trainType = "baseline"
+    trainType = "stopwords"
+
     """Output file paths"""
     train_csv_path = "./output/task1.csv"
     train_text_path = "./output/model-2018.txt"

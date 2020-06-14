@@ -49,7 +49,9 @@ train_unique_vocabulary = processing.common.clean_tokenize_wrapper(
     param.excluded_list,
     param.included_list,
     isTrain=True,
-    combine=True)
+    trainType=param.trainType,
+    combine=True,
+    stopwords=stopwords)
 
 """Get conditional probabilities for each word in every class P(w|cls)"""
 train_cls_prob, trained_data, train_excluded_vocab, train_cls_list = train.generate_model(
@@ -64,7 +66,6 @@ train_cls_prob, trained_data, train_excluded_vocab, train_cls_list = train.gener
 
 """Conditional probability table as dictionary to easily access the probabilities"""
 train_model_df = train.generate_model_df(trained_data)
-
 
 """Store probabilities data frame to file"""
 common.store_dataframe_to_file(
@@ -91,8 +92,9 @@ test_vocabulary_freq = processing.common.clean_tokenize_wrapper(
     param.excluded_list,
     param.included_list,
     isTrain=False,
-    combine=False)
-
+    trainType=param.trainType,
+    combine=False,
+    stopwords=stopwords)
 
 """---------Testing---------"""
 
@@ -113,7 +115,7 @@ test_classification_dt = classifier.classify_and_generate_result(
     param.debug)
 
 """Baseline result output"""
-print("Baseline result frequencies: ", nltk.FreqDist(test_classification_dt["right_wrong"]).__repr__())
+print(f"{param.trainType} result frequencies: ", nltk.FreqDist(test_classification_dt["right_wrong"]).__repr__())
 
 """Creating the testing output dataframe with all the required columns"""
 common.store_dataframe_to_file(
