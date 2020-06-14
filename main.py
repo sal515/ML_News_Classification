@@ -55,9 +55,9 @@ train_unique_vocabulary = processing.common.clean_tokenize_wrapper(
 train_cls_prob, trained_data, train_excluded_vocab, train_cls_list = train.generate_model(
     train_unique_vocabulary,
     train_set,
+    train_cls_freq,
     param.classes_col,
     param.vocabulary_col,
-    train_cls_freq,
     param.excluded_list,
     param.included_list,
     param.smoothing)
