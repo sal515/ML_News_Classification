@@ -38,8 +38,6 @@ def extract_dataset(
     extracted_category = [str(datetime.strptime(str(dt), '%Y-%m-%d %H:%M:%S').year) for dt in list(data[filterBy])]
     data[data_category] = extracted_category
 
-    # FIXME: Do I need to do cls freq here?
-
     """Extract all training dataset according to filter provided as parameter"""
     training_set = data[data[data_category].isin([trainingKey.lower()])]
     train_classes_freq = nltk.FreqDist(list(training_set[classes_col]))
@@ -73,9 +71,6 @@ def preprocess_translate(sentences, excluded_list, included_list):
     for sentence in sentences:
         sentence = sentence.replace("’", "'").replace("–", "-").replace("—", "-").replace("‐", "-")
         sentence = sentence.translate(str.maketrans('', '', exclude))
-        # TODO: Why can't i add empty sentence
-        # if sentence != "":
-        #     cleaned_sentence.append(sentence)
         cleaned_sentence.append(sentence)
     return cleaned_sentence, excluded_symbols
 
@@ -96,16 +91,15 @@ def clean_tokenize(sentences_list, excluded_list, included_list, combine):
 def frequency_distribution(tokenized_words):
     if isinstance(tokenized_words, list) and isinstance(tokenized_words[0], list):
         freq = [dict(nltk.FreqDist(t)) for t in tokenized_words]
-        for s in freq:
-            if "-" in s:
-                # FIXME: "Add ' "
-                # FIXME: "Add _ "
-                # del s["-"]
-                pass
+        # for s in freq:
+        #     if "-" in s:
+        #         # FIXME: Remove
+        #         # del s["-"]
+        #         pass
         return freq
 
     freq = dict(nltk.FreqDist(tokenized_words))
-    # Fixme: Re-delete
+    # Fixme: Remove
     # del freq["-"]
     return freq
 
@@ -143,7 +137,14 @@ def clean_tokenize_wrapper(
         included_list,
         combine=combine)
 
-    # FIXME: Stop words can be handled here
+    # FIXME: Remember to handle Train call of this function
+    # FIXME: Test uses unique_vocab. -> uses vocabulary_freq
+    # FIXME: 1. Stop words filtering - generate unique_vocab. by filtering the stop words here
+    # FIXME: 2. Word length filtering - generate unique_vocab. by filtering the words outside the len size
+    # FIXME: 3. Infrequent word filtering - ??
+
+    # FIXME: Remember to handle Test call of this function
+    # FIXME: Test uses vocab_freq
 
     """Create list frequency of the words in the vocabulary """
     vocabulary_freq = frequency_distribution(vocabulary)

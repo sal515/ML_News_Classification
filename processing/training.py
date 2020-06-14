@@ -21,10 +21,9 @@ def generate_model(
         excluded_list,
         included_list,
         smoothing):
-
     data_dict = {"word": list(unique_vocabulary)}
-    class_frequencies = []
-    class_probabilities = []
+    class_word_probabilities = []
+    class_word_frequencies = []
     excluded_vocab = []
     cls_keys = []
 
@@ -40,7 +39,8 @@ def generate_model(
             included_list,
             combine=True)
 
-        class_frequencies.append(common.frequency_distribution(vocab))
+        class_word_frequencies.append(common.frequency_distribution(vocab))
+
         if excluded_vocab.__len__() == 0:
             excluded_vocab.append(temp_excluded_vocab)
             continue
@@ -50,45 +50,40 @@ def generate_model(
     """Calculating probabilities with smoothing"""
     for i in range(0, classes.__len__()):
         tem_prob = dict()
-        cls_freq = class_frequencies[i]
+        cls_w_freq = class_word_frequencies[i]
         for w in unique_vocabulary:
-            if w not in cls_freq:
+            if w not in cls_w_freq:
                 tem_prob[w] = smoothing / (classes_freq[classes[i]] + (smoothing * unique_vocabulary.__len__()))
                 continue
-            tem_prob[w] = (cls_freq[w] + smoothing) / (
+            tem_prob[w] = (cls_w_freq[w] + smoothing) / (
                     classes_freq[classes[i]] + (smoothing * unique_vocabulary.__len__()))
-        class_probabilities.append(tem_prob)
+        class_word_probabilities.append(tem_prob)
 
     """"Creating Dataframe to save to txt file"""
-    # FIXME: remove counter not needed?
-    # data_dict = {"counter": list(range(0, unique_vocabulary.__len__())), "all_voc": list(unique_vocabulary)}
     for i in range(0, classes.__len__()):
         cls_keys.append(classes[i] + " freq")
         cls_keys.append(classes[i])
         data_dict[classes[i] + " freq"] = []
         data_dict[classes[i]] = []
         for w in unique_vocabulary:
-            if w not in class_probabilities[i]:
+            if w not in class_word_probabilities[i]:
                 data_dict[classes[i]].append("-")
                 data_dict[classes[i] + " freq"].append("-")
             else:
-                data_dict[classes[i]].append(class_probabilities[i][w])
+                data_dict[classes[i]].append(class_word_probabilities[i][w])
 
-            if w not in class_frequencies[i]:
+            if w not in class_word_frequencies[i]:
                 data_dict[classes[i] + " freq"].append(smoothing)
                 continue
-            data_dict[classes[i] + " freq"].append(class_frequencies[i][w])
+            data_dict[classes[i] + " freq"].append(class_word_frequencies[i][w])
 
-    """Calculating class probabilities"""
-    # FIXME something wrong with class freq - I think it is fixed <<<
+    """Calculating each class probabilities"""
     total_classes = common.calc_total_cls_entries(classes_freq)
     classes_prob = classes_freq.copy()
     for (k, v) in classes_freq.items():
         classes_prob[k] = v / total_classes
 
     return classes_prob, data_dict, np.concatenate(excluded_vocab), classes
-    # FIXME : Check if i need to return all these
-    # return class_frequencies, class_probabilities, classes_prob, data_dict, excluded_vocab, classes, cls_keys
 
 
 def generate_model_df(training_data):

@@ -62,6 +62,10 @@ train_cls_prob, trained_data, train_excluded_vocab, train_cls_list = train.gener
     param.included_list,
     param.smoothing)
 
+"""Conditional probability table as dictionary to easily access the probabilities"""
+train_model_df = train.generate_model_df(trained_data)
+
+
 """Store probabilities data frame to file"""
 common.store_dataframe_to_file(
     trained_data,
@@ -89,8 +93,6 @@ test_vocabulary_freq = processing.common.clean_tokenize_wrapper(
     isTrain=False,
     combine=False)
 
-"""Conditional probability table as dictionary to easily access the probabilities"""
-train_model_df = train.generate_model_df(trained_data)
 
 """---------Testing---------"""
 
