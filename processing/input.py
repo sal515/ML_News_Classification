@@ -16,16 +16,23 @@ class param:
     smoothing = 0.5
     log_base = 10
 
-    # trainType = "baseline"
-    # trainType = "stopwords"
-    trainType = "word_length"
+    train_text_path = None
+    vocabulary_path = None
+    removed_word_path = None
+    result_text_path = None
+    train_csv_path = None
+    result_csv_path = None
+
+    train_types = ["baseline", "stopword", "wordlength"]
     minwords = 2
     maxwords = 9
 
-    """Output file paths"""
-    train_csv_path = "./output/task1.csv"
-    train_text_path = "./output/model-2018.txt"
-    vocabulary_path = "./output/vocabulary.txt"
-    removed_word_path = "./output/removed_word.txt"
-    result_csv_path = "./output/task2.csv"
-    result_text_path = "./output/baseline_result.txt"
+    @staticmethod
+    def get_paths(trainType):
+        """Output file paths"""
+        param.train_text_path = "./output/model-2018.txt" if trainType == "baseline" else f"./output/{trainType}-model.txt"
+        param.vocabulary_path = "./output/vocabulary.txt" if trainType == "baseline" else f"./output/{trainType}-vocabulary.txt"
+        param.removed_word_path = "./output/removed_word.txt" if trainType == "baseline" else f"./output/{trainType}-removed_word.txt"
+        param.result_text_path = "./output/baseline_result.txt" if trainType == "baseline" else f"./output/{trainType}-result.txt"
+        param.train_csv_path = "./output/task1.csv"
+        param.result_csv_path = "./output/task2.csv"

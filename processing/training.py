@@ -102,7 +102,7 @@ def train_clean_tokenize_wrapper(
         vocabulary_col,
         excluded_list,
         included_list,
-        trainType,
+        train_type,
         stopwords,
         minWords,
         maxWords):
@@ -118,22 +118,20 @@ def train_clean_tokenize_wrapper(
         included_list,
         combine=True)
 
-    # FIXME: Remember to handle Train call of this function
-    # FIXME: Test uses unique_vocab. -> uses vocabulary_freq
-    # FIXME: 1. Stop words filtering - generate unique_vocab. by filtering the stop words here
-
     """Create list frequency of the words in the vocabulary """
     vocabulary_freq = common.frequency_distribution(vocabulary)
 
-    """Removing stop words from the vocabulary"""
-    if trainType == "stopwords":
+    # FIXME: Remember to handle Train call of this function
+    # FIXME: Test uses unique_vocab. -> uses vocabulary_freq
+
+    """Stopwords filtering: Removing stop words from the vocabulary"""
+    if train_type == "stopword":
         for word in stopwords:
             if word in vocabulary_freq:
                 del vocabulary_freq[word]
 
-    # FIXME: 2. Word length filtering - generate unique_vocab. by filtering the words outside the len size
-    """Removing words with out of range length from the vocabulary"""
-    if trainType == "word_length":
+    """Word length filtering: Removing words with out of range length from the vocabulary"""
+    if train_type == "wordlength":
         to_be_removed = list(filter(lambda x: len(x) <= minWords or len(x) >= maxWords, vocabulary_freq.keys()))
 
         for word in to_be_removed:
@@ -142,12 +140,10 @@ def train_clean_tokenize_wrapper(
 
     # FIXME: 3. Infrequent word filtering - ??
 
-    return np.sort(np.array(list(vocabulary_freq.keys())))
-
-    # FIXME: 3. Infrequent word filtering - ??
-
     # FIXME: Remember to handle Test call of this function
     # FIXME: Test uses vocab_freq
+
+    return np.sort(np.array(list(vocabulary_freq.keys())))
 
 
 # TEST CODE
