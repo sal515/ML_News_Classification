@@ -44,6 +44,8 @@ class param:
     """infrequent word filtering experiment"""
 
     class word_freq_threshold:
+        frequency_str = "frequency"
+        percentage_str = "percentage"
         min_freq = 1
         max_freq = 20
         min_top_percentage = 5

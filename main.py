@@ -15,7 +15,7 @@ import processing.naive_bays_classifier as classifier
 from processing.input import param
 
 
-def train_and_test(frequency):
+def train_and_test(freq_percent):
     """Get all vocabulary and frequency of all the words in TRAIN dataset"""
     train_unique_vocabulary = train.train_clean_tokenize_wrapper(
         train_set,
@@ -26,8 +26,9 @@ def train_and_test(frequency):
         train_type=train_type,
         stopwords=stopwords,
         word_lengths=param.word_lengths,
-        frequency=frequency,
+        freq_percent=freq_percent,
         word_freq_threshold=param.word_freq_threshold)
+
     """Get conditional probabilities for each word in every class P(w|cls)"""
     train_cls_prob, trained_data, train_excluded_vocab, train_cls_list = train.generate_model(
         train_unique_vocabulary,
@@ -38,6 +39,7 @@ def train_and_test(frequency):
         param.excluded_list,
         param.included_list,
         param.smoothing)
+
     """Conditional probability table as dictionary to easily access the probabilities"""
     train_model_df = train.generate_model_df(trained_data)
     if train_type != param.experiments.infrequent_word_filtering:
@@ -58,12 +60,14 @@ def train_and_test(frequency):
             {"removed": [str(i).encode('utf-8') for i in train_excluded_vocab]},
             csv_path=None,
             text_path=param.removed_word_path)
+
     """Get all vocabulary and frequency of all the words in TEST dataset"""
     test_vocabulary_freq = classifier.test_clean_tokenize_wrapper(
         test_set,
         param.vocabulary_col,
         param.excluded_list,
         param.included_list)
+
     """Score calculations"""
     test_cls_scores = classifier.calculate_scores(
         test_vocabulary_freq,
@@ -71,6 +75,7 @@ def train_and_test(frequency):
         train_cls_prob,
         train_model_df,
         param.log_base)
+
     """ Adding columns for dataframe of test ouptut"""
     test_classification_dt = classifier.classify_and_generate_result(
         test_set,
@@ -78,7 +83,8 @@ def train_and_test(frequency):
         train_cls_list,
         test_cls_scores,
         param.debug)
-    """Baseline result output"""
+
+    """Result output"""
     print(f"{train_type} result frequencies: ", nltk.FreqDist(test_classification_dt["right_wrong"]).__repr__())
     if train_type != param.experiments.infrequent_word_filtering:
         """Creating the testing output dataframe with all the required columns"""
@@ -103,18 +109,18 @@ train_set, test_set, train_cls_freq, stopwords = common.extract_dataset(
 timer_offset = time.perf_counter()
 
 for train_type in param.experiments.train_types:
-    """Updating result and model file paths for experiments"""
+    """Updating result and model file paths for the experiments"""
     param.get_paths(train_type)
 
     if train_type == param.experiments.infrequent_word_filtering:
         param.update_frequency_thresholds()
-        for i in param.word_freq_threshold.frequencies:
-            train_and_test(i)
-        for i in param.word_freq_threshold.percentages:
-            train_and_test(i)
+        for frequency in param.word_freq_threshold.frequencies:
+            train_and_test((frequency, param.word_freq_threshold.frequency_str))
+        for percentage in param.word_freq_threshold.percentages:
+            train_and_test((percentage, param.word_freq_threshold.percentage_str))
         continue
 
     train_and_test(None)
 
 time_taken = time.perf_counter() - timer_offset
-print("\nTotal time elapsed to complete the experiments ", round(time_taken,3), "s")
+print("\nTotal time elapsed to complete the experiments ", round(time_taken, 3), "s")
