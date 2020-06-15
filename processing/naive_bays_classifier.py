@@ -24,7 +24,10 @@ def classify(train_cls_list, cls_scores):
     return classification_out_list
 
 
-def output_result_dict(test_set, test_vocabulary_freq, classification_out_list, train_cls_list, cls_scores, debug):
+def classify_and_generate_result(test_set, test_vocabulary_freq, train_cls_list, cls_scores, debug):
+
+    classification_out_list = classify(train_cls_list, cls_scores)
+
     """ Adding columns for dataframe of test ouptut"""
     if "Title" in test_set:
         classification_dt = {"Sentences": [str(i).encode('utf-8') for i in test_set["Title"]]}
