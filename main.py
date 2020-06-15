@@ -51,7 +51,9 @@ train_unique_vocabulary = processing.common.clean_tokenize_wrapper(
     isTrain=True,
     trainType=param.trainType,
     combine=True,
-    stopwords=stopwords)
+    stopwords=stopwords,
+    minWords=param.minwords,
+    maxWords=param.maxwords)
 
 """Get conditional probabilities for each word in every class P(w|cls)"""
 train_cls_prob, trained_data, train_excluded_vocab, train_cls_list = train.generate_model(
@@ -94,7 +96,9 @@ test_vocabulary_freq = processing.common.clean_tokenize_wrapper(
     isTrain=False,
     trainType=param.trainType,
     combine=False,
-    stopwords=stopwords)
+    stopwords=stopwords,
+    minWords=param.minwords,
+    maxWords=param.maxwords)
 
 """---------Testing---------"""
 

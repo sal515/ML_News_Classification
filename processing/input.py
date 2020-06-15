@@ -17,8 +17,10 @@ class param:
     log_base = 10
 
     # trainType = "baseline"
-    trainType = "stopwords"
+    # trainType = "stopwords"
     trainType = "word_length"
+    minwords = 2
+    maxwords = 9
 
     """Output file paths"""
     train_csv_path = "./output/task1.csv"

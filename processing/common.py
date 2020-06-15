@@ -127,7 +127,9 @@ def clean_tokenize_wrapper(
         isTrain,
         trainType,
         combine,
-        stopwords):
+        stopwords,
+        minWords,
+        maxWords):
     """This function returns the (unique words in vocabulary) if isTrain==True otherwise (frequency of words in vocabulary)"""
 
     """List of titles/sentences in the dataset"""
@@ -175,17 +177,40 @@ def clean_tokenize_wrapper(
     if trainType == "stopwords":
         """Removing stop words from the vocabulary"""
         if is_vocab_list_of_lists:
-            """Remove stopwords from the vocabulary"""
-            for word in stopwords:
-                for sentence_words in vocabulary_freq:
-                    if word in sentence_words:
-                        del sentence_words[word]
+            # # FIXME: Do i really need this check?
+            # for word in stopwords:
+            #     for sentence_words in vocabulary_freq:
+            #         if word in sentence_words:
+            #             del sentence_words[word]
+            pass
         else:
             for word in stopwords:
                 if word in vocabulary_freq:
                     del vocabulary_freq[word]
 
+    if trainType == "word_length":
 
+        """Removing words with out of range length from the vocabulary"""
+        if is_vocab_list_of_lists:
+            # FIXME: Do i really need this check?
+            # all_keys = list(
+            #     dict(
+            #         nltk.FreqDist(list(np.concatenate(list(map(lambda d: list(d.keys()), vocabulary_freq)))))).keys())
+            #
+            # to_be_removed = list(filter(lambda x: len(x) <= minWords or len(x) >= maxWords, all_keys))
+            #
+            # for word in to_be_removed:
+            #     for sentence_words in vocabulary_freq:
+            #         if word in sentence_words:
+            #             del sentence_words[word]
+            pass
+
+        else:
+            to_be_removed = list(filter(lambda x: len(x) <= minWords or len(x) >= maxWords, vocabulary_freq.keys()))
+
+            for word in to_be_removed:
+                if word in vocabulary_freq:
+                    del vocabulary_freq[word]
 
     """if it is not train, unique vocabulary doesn't have to be generated"""
     if not isTrain:
@@ -193,6 +218,7 @@ def clean_tokenize_wrapper(
 
     """Create list of unique vocabulary"""
     if is_vocab_list_of_lists:
+        # FIXME: Duplicates are not handled
         unique_vocabulary = np.sort(
             np.array(list(np.concatenate(list(map(lambda d: list(d.keys()), vocabulary_freq))))))
         return unique_vocabulary
