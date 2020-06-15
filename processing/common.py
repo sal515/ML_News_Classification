@@ -45,7 +45,6 @@ def extract_dataset(
 
     """Extract all testing dataset according to filter provided as parameter"""
     testing_set = data[data[data_category].isin([testingKey.lower()])]
-    # test_classes_freq = nltk.FreqDist(list(testing_set[classes_col]))
 
     return training_set, testing_set, train_classes_freq, stop_words
 
@@ -92,16 +91,9 @@ def clean_tokenize(sentences_list, excluded_list, included_list, combine):
 def frequency_distribution(tokenized_words):
     if isinstance(tokenized_words, list) and isinstance(tokenized_words[0], list):
         freq = [dict(nltk.FreqDist(t)) for t in tokenized_words]
-        # for s in freq:
-        #     if "-" in s:
-        #         # FIXME: Remove
-        #         # del s["-"]
-        #         pass
         return freq
 
     freq = dict(nltk.FreqDist(tokenized_words))
-    # Fixme: Remove
-    # del freq["-"]
     return freq
 
 
@@ -144,26 +136,6 @@ def clean_tokenize_wrapper(
 
     is_vocab_list_of_lists = False
 
-    # if trainType == "baseline":
-    #     """Create list frequency of the words in the vocabulary """
-    #     vocabulary_freq = frequency_distribution(vocabulary)
-    #
-    #     """Checking if the vocabulary_freq is list of lists"""
-    #     is_vocab_list_of_lists = isinstance(vocabulary_freq, list) and isinstance(vocabulary_freq[0], dict)
-    #
-    #     """if it is not train, unique vocabulary doesn't have to be generated"""
-    #     if not isTrain:
-    #         return vocabulary_freq
-    #
-    #     """Create list of unique vocabulary"""
-    #     if is_vocab_list_of_lists:
-    #         unique_vocabulary = np.sort(
-    #             np.array(list(np.concatenate(list(map(lambda d: list(d.keys()), vocabulary_freq))))))
-    #         return unique_vocabulary
-    #
-    #     unique_vocabulary = np.sort(np.array(list(vocabulary_freq.keys())))
-    #     return unique_vocabulary
-
     # FIXME: Remember to handle Train call of this function
     # FIXME: Test uses unique_vocab. -> uses vocabulary_freq
     # FIXME: 1. Stop words filtering - generate unique_vocab. by filtering the stop words here
@@ -177,32 +149,17 @@ def clean_tokenize_wrapper(
     if trainType == "stopwords":
         """Removing stop words from the vocabulary"""
         if is_vocab_list_of_lists:
-            # # FIXME: Do i really need this check?
-            # for word in stopwords:
-            #     for sentence_words in vocabulary_freq:
-            #         if word in sentence_words:
-            #             del sentence_words[word]
             pass
         else:
             for word in stopwords:
                 if word in vocabulary_freq:
                     del vocabulary_freq[word]
 
+    # FIXME: 2. Word length filtering - generate unique_vocab. by filtering the words outside the len size
     if trainType == "word_length":
 
         """Removing words with out of range length from the vocabulary"""
         if is_vocab_list_of_lists:
-            # FIXME: Do i really need this check?
-            # all_keys = list(
-            #     dict(
-            #         nltk.FreqDist(list(np.concatenate(list(map(lambda d: list(d.keys()), vocabulary_freq)))))).keys())
-            #
-            # to_be_removed = list(filter(lambda x: len(x) <= minWords or len(x) >= maxWords, all_keys))
-            #
-            # for word in to_be_removed:
-            #     for sentence_words in vocabulary_freq:
-            #         if word in sentence_words:
-            #             del sentence_words[word]
             pass
 
         else:
@@ -211,6 +168,10 @@ def clean_tokenize_wrapper(
             for word in to_be_removed:
                 if word in vocabulary_freq:
                     del vocabulary_freq[word]
+
+
+    # FIXME: 3. Infrequent word filtering - ??
+
 
     """if it is not train, unique vocabulary doesn't have to be generated"""
     if not isTrain:
@@ -226,7 +187,6 @@ def clean_tokenize_wrapper(
     unique_vocabulary = np.sort(np.array(list(vocabulary_freq.keys())))
     return unique_vocabulary
 
-    # FIXME: 2. Word length filtering - generate unique_vocab. by filtering the words outside the len size
     # FIXME: 3. Infrequent word filtering - ??
 
     # FIXME: Remember to handle Test call of this function
