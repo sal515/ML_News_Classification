@@ -52,8 +52,7 @@ def test_clean_tokenize_wrapper(
         data_set,
         vocabulary_col,
         excluded_list,
-        included_list,
-        combine):
+        included_list):
     """This function returns the frequency of words in vocabulary"""
 
     """List of titles/sentences in the dataset"""
@@ -64,7 +63,7 @@ def test_clean_tokenize_wrapper(
         sentences,
         excluded_list,
         included_list,
-        combine=combine)
+        combine=False)
 
     """Create list frequency of the words in the vocabulary """
     return common.frequency_distribution(vocabulary)

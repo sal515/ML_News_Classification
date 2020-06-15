@@ -48,9 +48,7 @@ train_unique_vocabulary = train.train_clean_tokenize_wrapper(
     param.vocabulary_col,
     param.excluded_list,
     param.included_list,
-    isTrain=True,
     trainType=param.trainType,
-    combine=True,
     stopwords=stopwords,
     minWords=param.minwords,
     maxWords=param.maxwords)
@@ -92,8 +90,7 @@ test_vocabulary_freq = classifier.test_clean_tokenize_wrapper(
     test_set,
     param.vocabulary_col,
     param.excluded_list,
-    param.included_list,
-    combine=False)
+    param.included_list)
 
 """---------Testing---------"""
 

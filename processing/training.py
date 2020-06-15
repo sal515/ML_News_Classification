@@ -103,7 +103,6 @@ def train_clean_tokenize_wrapper(
         excluded_list,
         included_list,
         trainType,
-        combine,
         stopwords,
         minWords,
         maxWords):
@@ -117,7 +116,7 @@ def train_clean_tokenize_wrapper(
         sentences,
         excluded_list,
         included_list,
-        combine=combine)
+        combine=True)
 
     # FIXME: Remember to handle Train call of this function
     # FIXME: Test uses unique_vocab. -> uses vocabulary_freq
@@ -126,16 +125,15 @@ def train_clean_tokenize_wrapper(
     """Create list frequency of the words in the vocabulary """
     vocabulary_freq = common.frequency_distribution(vocabulary)
 
+    """Removing stop words from the vocabulary"""
     if trainType == "stopwords":
-        """Removing stop words from the vocabulary"""
         for word in stopwords:
             if word in vocabulary_freq:
                 del vocabulary_freq[word]
 
     # FIXME: 2. Word length filtering - generate unique_vocab. by filtering the words outside the len size
+    """Removing words with out of range length from the vocabulary"""
     if trainType == "word_length":
-
-        """Removing words with out of range length from the vocabulary"""
         to_be_removed = list(filter(lambda x: len(x) <= minWords or len(x) >= maxWords, vocabulary_freq.keys()))
 
         for word in to_be_removed:
