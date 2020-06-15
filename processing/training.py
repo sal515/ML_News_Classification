@@ -141,11 +141,10 @@ def train_clean_tokenize_wrapper(
             if word in vocabulary_freq:
                 del vocabulary_freq[word]
 
-    # FIXME: 3. Infrequent word filtering - ??
     """Infrequent word filtering: Removing infrequent words"""
     if train_type == train_types.infrequent_word_filtering:
         if freq_percent[1] == word_freq_threshold.frequency_str:
-            print("freq ", freq_percent[0])
+            print("\nFrequency <= ", freq_percent[0])
             vocabulary_keys = list(vocabulary_freq.keys())
             to_be_removed = [vocabulary_keys[i] for i in
                              [i for i, e in enumerate(
@@ -154,11 +153,9 @@ def train_clean_tokenize_wrapper(
             for word in to_be_removed:
                 if word in vocabulary_freq:
                     del vocabulary_freq[word]
-            pass
-
 
         elif freq_percent[1] == word_freq_threshold.percentage_str:
-            print("percet ", freq_percent[0])
+            print("\nTop percetage >= ", freq_percent[0])
             vocabulary_keys = list(vocabulary_freq.keys())
             percentile_val = np.percentile(np.array(list(vocabulary_freq.values())), 100 - freq_percent[0])
 
@@ -169,8 +166,6 @@ def train_clean_tokenize_wrapper(
             for word in to_be_removed:
                 if word in vocabulary_freq:
                     del vocabulary_freq[word]
-            pass
-        pass
 
     # FIXME: Remember to handle Test call of this function
     # FIXME: Test uses vocab_freq

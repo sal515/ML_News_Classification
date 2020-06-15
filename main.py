@@ -9,6 +9,7 @@ import time
 import nltk
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 import processing.training as train
 import processing.common as common
 import processing.naive_bays_classifier as classifier
@@ -85,13 +86,18 @@ def train_and_test(freq_percent):
         param.debug)
 
     """Result output"""
-    print(f"{train_type} result frequencies: ", nltk.FreqDist(test_classification_dt["right_wrong"]).__repr__())
+    freqDist = nltk.FreqDist(test_classification_dt["right_wrong"])
+    accuracy = round((freqDist["right"] / test_classification_dt["Sentences"].__len__()) * 100, 3)
+    print(f"\n{train_type} result frequencies: {freqDist.__repr__()}, Accuracy:  {accuracy}")
+
     if train_type != param.experiments.infrequent_word_filtering:
         """Creating the testing output dataframe with all the required columns"""
         common.store_dataframe_to_file(
             test_classification_dt,
             csv_path=param.result_csv_path if param.debug else None,
             text_path=param.result_text_path)
+
+    return test_classification_dt
 
 
 """---------Data Extraction---------"""
@@ -114,13 +120,42 @@ for train_type in param.experiments.train_types:
 
     if train_type == param.experiments.infrequent_word_filtering:
         param.update_frequency_thresholds()
+
         for frequency in param.word_freq_threshold.frequencies:
-            train_and_test((frequency, param.word_freq_threshold.frequency_str))
+            classification_dt = train_and_test((frequency, param.word_freq_threshold.frequency_str))
+
+            "Frequency Results metrics"
+            freqDist = nltk.FreqDist(classification_dt["right_wrong"])
+            accuracy = round((freqDist["right"] / classification_dt["Sentences"].__len__()) * 100, 3)
+            # print(accuracy)
+
+            param.word_freq_threshold.frequencies_result.append(accuracy)
+
         for percentage in param.word_freq_threshold.percentages:
-            train_and_test((percentage, param.word_freq_threshold.percentage_str))
+            classification_dt = train_and_test((percentage, param.word_freq_threshold.percentage_str))
+
+            "Percentage Results metrics"
+            freqDist = nltk.FreqDist(classification_dt["right_wrong"])
+            accuracy = round((freqDist["right"] / classification_dt["Sentences"].__len__()) * 100, 3)
+            # print(accuracy)
+
+            param.word_freq_threshold.percentages_result.append(accuracy)
+
         continue
 
-    train_and_test(None)
+    classification_dt = train_and_test(None)
 
 time_taken = time.perf_counter() - timer_offset
 print("\nTotal time elapsed to complete the experiments ", round(time_taken, 3), "s")
+
+# FIXME
+fig, axs = plt.subplots(2)
+axs[0].grid(True, "both")
+axs[0].set_title("Accuracy vs Removed: Frequency")
+axs[0].set(xlabel="Frequency", ylabel="Accuracy")
+axs[0].plot(param.word_freq_threshold.frequencies, param.word_freq_threshold.frequencies_result)
+axs[1].grid(True, "both")
+axs[1].set_title("Accuracy vs Removed: Top Frequent Words")
+axs[1].set(xlabel="Percentage (%)", ylabel="Accuracy")
+axs[1].plot(param.word_freq_threshold.percentages, param.word_freq_threshold.percentages_result)
+plt.show()

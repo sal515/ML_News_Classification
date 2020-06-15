@@ -52,9 +52,9 @@ class param:
         max_top_percentage = 25
         steps = 5
         frequencies = None
-        frequencies_result = None
+        frequencies_result = []
         percentages = None
-        percentages_result = None
+        percentages_result = []
 
     @staticmethod
     def get_paths(trainType):
