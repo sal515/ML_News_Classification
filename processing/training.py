@@ -7,6 +7,8 @@ import processing.common as common
 # pd.set_option('expand_frame_repr', True)
 # pd.set_option('display.column_space', 2)
 # pd.set_option('display.max_colwidth', sys.maxsize)
+# from processing.common import clean_tokenize, frequency_distribution
+
 pd.set_option('display.max_columns', sys.maxsize)
 pd.set_option('display.max_rows', sys.maxsize)
 pd.set_option('display.width', sys.maxsize)
@@ -93,6 +95,82 @@ def generate_model_df(training_data):
     else:
         raise Exception("Error: word column is not found in training data")
     return model_df
+
+
+def train_clean_tokenize_wrapper(
+        data_set,
+        vocabulary_col,
+        excluded_list,
+        included_list,
+        train_types,
+        train_type,
+        stopwords,
+        word_lengths,
+        freq_percent,
+        word_freq_threshold):
+    """This function returns the unique words in vocabulary"""
+
+    """List of titles/sentences in the dataset"""
+    sentences = list(data_set[vocabulary_col])
+
+    """Create list of vocabulary and excluded symbols"""
+    vocabulary, excluded_symbols = common.clean_tokenize(
+        sentences,
+        excluded_list,
+        included_list,
+        combine=True)
+
+    """Create list frequency of the words in the vocabulary """
+    vocabulary_freq = common.frequency_distribution(vocabulary)
+
+    # FIXME: Remember to handle Train call of this function
+    # FIXME: Test uses unique_vocab. -> uses vocabulary_freq
+
+    """Stopwords filtering: Removing stop words from the vocabulary"""
+    if train_type == train_types.stopword:
+        for word in stopwords:
+            if word in vocabulary_freq:
+                del vocabulary_freq[word]
+
+    """Word length filtering: Removing words with out of range length from the vocabulary"""
+    if train_type == train_types.word_length:
+        to_be_removed = list(filter(lambda x: len(x) <= word_lengths.min_words or len(x) >= word_lengths.max_words,
+                                    vocabulary_freq.keys()))
+
+        for word in to_be_removed:
+            if word in vocabulary_freq:
+                del vocabulary_freq[word]
+
+    """Infrequent word filtering: Removing infrequent words"""
+    if train_type == train_types.infrequent_word_filtering:
+        if freq_percent[1] == word_freq_threshold.frequency_str:
+            print("\nFrequency <= ", freq_percent[0])
+            vocabulary_keys = list(vocabulary_freq.keys())
+            to_be_removed = [vocabulary_keys[i] for i in
+                             [i for i, e in enumerate(
+                                 vocabulary_freq.values()) if e <= freq_percent[0]]]
+
+            for word in to_be_removed:
+                if word in vocabulary_freq:
+                    del vocabulary_freq[word]
+
+        elif freq_percent[1] == word_freq_threshold.percentage_str:
+            print("\nTop percetage >= ", freq_percent[0])
+            vocabulary_keys = list(vocabulary_freq.keys())
+            percentile_val = np.percentile(np.array(list(vocabulary_freq.values())), 100 - freq_percent[0])
+
+            to_be_removed = [vocabulary_keys[i] for i in
+                             [i for i, e in enumerate(
+                                 vocabulary_freq.values()) if e >= percentile_val]]
+
+            for word in to_be_removed:
+                if word in vocabulary_freq:
+                    del vocabulary_freq[word]
+
+    # FIXME: Remember to handle Test call of this function
+    # FIXME: Test uses vocab_freq
+
+    return np.sort(np.array(list(vocabulary_freq.keys())))
 
 
 # TEST CODE

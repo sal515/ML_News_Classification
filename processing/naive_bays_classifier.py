@@ -1,4 +1,5 @@
 import math
+import processing.common as common
 
 
 def calculate_scores(test_vocabulary_freq, train_cls_list, train_cls_prob, model_df, log_base):
@@ -25,7 +26,6 @@ def classify(train_cls_list, cls_scores):
 
 
 def classify_and_generate_result(test_set, test_vocabulary_freq, train_cls_list, cls_scores, debug):
-
     classification_out_list = classify(train_cls_list, cls_scores)
 
     """ Adding columns for dataframe of test ouptut"""
@@ -46,3 +46,24 @@ def classify_and_generate_result(test_set, test_vocabulary_freq, train_cls_list,
     classification_dt.update({"right_wrong": right_wrong_list})
 
     return classification_dt
+
+
+def test_clean_tokenize_wrapper(
+        data_set,
+        vocabulary_col,
+        excluded_list,
+        included_list):
+    """This function returns the frequency of words in vocabulary"""
+
+    """List of titles/sentences in the dataset"""
+    sentences = list(data_set[vocabulary_col])
+
+    """Create list of vocabulary and excluded symbols"""
+    vocabulary, excluded_symbols = common.clean_tokenize(
+        sentences,
+        excluded_list,
+        included_list,
+        combine=False)
+
+    """Create list frequency of the words in the vocabulary """
+    return common.frequency_distribution(vocabulary)
