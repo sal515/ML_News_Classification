@@ -7,6 +7,8 @@ import processing.common as common
 # pd.set_option('expand_frame_repr', True)
 # pd.set_option('display.column_space', 2)
 # pd.set_option('display.max_colwidth', sys.maxsize)
+# from processing.common import clean_tokenize, frequency_distribution
+
 pd.set_option('display.max_columns', sys.maxsize)
 pd.set_option('display.max_rows', sys.maxsize)
 pd.set_option('display.width', sys.maxsize)
@@ -93,6 +95,61 @@ def generate_model_df(training_data):
     else:
         raise Exception("Error: word column is not found in training data")
     return model_df
+
+
+def train_clean_tokenize_wrapper(
+        data_set,
+        vocabulary_col,
+        excluded_list,
+        included_list,
+        trainType,
+        combine,
+        stopwords,
+        minWords,
+        maxWords):
+    """This function returns the unique words in vocabulary"""
+
+    """List of titles/sentences in the dataset"""
+    sentences = list(data_set[vocabulary_col])
+
+    """Create list of vocabulary and excluded symbols"""
+    vocabulary, excluded_symbols = common.clean_tokenize(
+        sentences,
+        excluded_list,
+        included_list,
+        combine=combine)
+
+    # FIXME: Remember to handle Train call of this function
+    # FIXME: Test uses unique_vocab. -> uses vocabulary_freq
+    # FIXME: 1. Stop words filtering - generate unique_vocab. by filtering the stop words here
+
+    """Create list frequency of the words in the vocabulary """
+    vocabulary_freq = common.frequency_distribution(vocabulary)
+
+    if trainType == "stopwords":
+        """Removing stop words from the vocabulary"""
+        for word in stopwords:
+            if word in vocabulary_freq:
+                del vocabulary_freq[word]
+
+    # FIXME: 2. Word length filtering - generate unique_vocab. by filtering the words outside the len size
+    if trainType == "word_length":
+
+        """Removing words with out of range length from the vocabulary"""
+        to_be_removed = list(filter(lambda x: len(x) <= minWords or len(x) >= maxWords, vocabulary_freq.keys()))
+
+        for word in to_be_removed:
+            if word in vocabulary_freq:
+                del vocabulary_freq[word]
+
+    # FIXME: 3. Infrequent word filtering - ??
+
+    return np.sort(np.array(list(vocabulary_freq.keys())))
+
+    # FIXME: 3. Infrequent word filtering - ??
+
+    # FIXME: Remember to handle Test call of this function
+    # FIXME: Test uses vocab_freq
 
 
 # TEST CODE

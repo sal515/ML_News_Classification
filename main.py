@@ -1,5 +1,5 @@
 import nltk
-import processing.common
+import numpy as np
 import processing.training as train
 import processing.common as common
 import processing.naive_bays_classifier as classifier
@@ -43,7 +43,7 @@ train_set, test_set, train_cls_freq, stopwords = common.extract_dataset(
     param.classes_col)
 
 """Get all vocabulary and frequency of all the words in TRAIN dataset"""
-train_unique_vocabulary = processing.common.clean_tokenize_wrapper(
+train_unique_vocabulary = train.train_clean_tokenize_wrapper(
     train_set,
     param.vocabulary_col,
     param.excluded_list,
@@ -88,17 +88,12 @@ common.store_dataframe_to_file(
     text_path=param.removed_word_path)
 
 """Get all vocabulary and frequency of all the words in TEST dataset"""
-test_vocabulary_freq = processing.common.clean_tokenize_wrapper(
+test_vocabulary_freq = classifier.test_clean_tokenize_wrapper(
     test_set,
     param.vocabulary_col,
     param.excluded_list,
     param.included_list,
-    isTrain=False,
-    trainType=param.trainType,
-    combine=False,
-    stopwords=stopwords,
-    minWords=param.minwords,
-    maxWords=param.maxwords)
+    combine=False)
 
 """---------Testing---------"""
 
