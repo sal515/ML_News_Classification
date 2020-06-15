@@ -102,10 +102,11 @@ def train_clean_tokenize_wrapper(
         vocabulary_col,
         excluded_list,
         included_list,
+        train_types,
         train_type,
         stopwords,
-        minWords,
-        maxWords):
+        word_lengths,
+        word_freq_threshold):
     """This function returns the unique words in vocabulary"""
 
     """List of titles/sentences in the dataset"""
@@ -125,20 +126,24 @@ def train_clean_tokenize_wrapper(
     # FIXME: Test uses unique_vocab. -> uses vocabulary_freq
 
     """Stopwords filtering: Removing stop words from the vocabulary"""
-    if train_type == "stopword":
+    if train_type == train_types.stopword:
         for word in stopwords:
             if word in vocabulary_freq:
                 del vocabulary_freq[word]
 
     """Word length filtering: Removing words with out of range length from the vocabulary"""
-    if train_type == "wordlength":
-        to_be_removed = list(filter(lambda x: len(x) <= minWords or len(x) >= maxWords, vocabulary_freq.keys()))
+    if train_type == train_types.word_length:
+        to_be_removed = list(filter(lambda x: len(x) <= word_lengths.min_words or len(x) >= word_lengths.max_words,
+                                    vocabulary_freq.keys()))
 
         for word in to_be_removed:
             if word in vocabulary_freq:
                 del vocabulary_freq[word]
 
     # FIXME: 3. Infrequent word filtering - ??
+    """Infrequent word filtering: Removing infrequent words"""
+    # if train_type == train_types.infrequent_word_filtering:
+    #     pass
 
     # FIXME: Remember to handle Test call of this function
     # FIXME: Test uses vocab_freq

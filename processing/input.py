@@ -23,9 +23,27 @@ class param:
     train_csv_path = None
     result_csv_path = None
 
-    train_types = ["baseline", "stopword", "wordlength"]
-    minwords = 2
-    maxwords = 9
+    """Experiment types"""
+    class experiments:
+        baseline = "baseline"
+        stopword = "stopword"
+        word_length = "wordlength"
+        infrequent_word_filtering = "infrequent_word_filtering"
+        train_types = [baseline, stopword, word_length,
+                       infrequent_word_filtering]
+
+
+    """word length experiment"""
+    class word_lengths:
+        min_words = 2
+        max_words = 9
+
+    """infrequent word filtering experiment"""
+    class word_freq_threshold:
+        min_freq = 1
+        max_freq = 20
+        min_top_percentage = 5
+        max_top_percentage = 25
 
     @staticmethod
     def get_paths(trainType):

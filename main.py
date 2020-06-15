@@ -6,31 +6,6 @@ import processing.common as common
 import processing.naive_bays_classifier as classifier
 from processing.input import param
 
-# debug = 0
-#
-# """Dataset File paths"""
-# dataset_path = "./data/hns_2018_2019.csv"
-# stop_words_path = "./data/stopwords.txt"
-#
-# """Constant variables"""
-# excluded_list = """!"#$%&\()*+,:;<=>?@[\\]^`{|}~–—‐‑"""
-# included_list = """'"-_’/."""
-# data_filter = "Created At"
-# train_key = "2018"
-# test_Key = "2019"
-# vocabulary_col = "Title"
-# classes_col = "Post Type"
-# smoothing = 0.5
-# log_base = 10
-#
-# """Output file paths"""
-# train_csv_path = "./output/task1.csv"
-# train_text_path = "./output/model-2018.txt"
-# vocabulary_path = "./output/vocabulary.txt"
-# removed_word_path = "./output/removed_word.txt"
-# result_csv_path = "./output/task2.csv"
-# result_text_path = "./output/baseline_result.txt"
-
 """---------Data Extraction---------"""
 
 """Get training and testing dataset from the dataset files"""
@@ -42,11 +17,13 @@ train_set, test_set, train_cls_freq, stopwords = common.extract_dataset(
     param.test_Key,
     param.classes_col)
 
-"""---------Training---------"""
+"""---------Training and Testing---------"""
 
-for train_type in param.train_types:
+for train_type in param.experiments.train_types:
     """Updating result and model file paths for experiments"""
     param.get_paths(train_type)
+
+    # for i in range(0,1 if )
 
     """Get all vocabulary and frequency of all the words in TRAIN dataset"""
     train_unique_vocabulary = train.train_clean_tokenize_wrapper(
@@ -54,10 +31,11 @@ for train_type in param.train_types:
         param.vocabulary_col,
         param.excluded_list,
         param.included_list,
+        train_types=param.experiments,
         train_type=train_type,
         stopwords=stopwords,
-        minWords=param.minwords,
-        maxWords=param.maxwords)
+        word_lengths=param.word_lengths,
+        word_freq_threshold=param.word_freq_threshold)
 
     """Get conditional probabilities for each word in every class P(w|cls)"""
     train_cls_prob, trained_data, train_excluded_vocab, train_cls_list = train.generate_model(
@@ -73,23 +51,24 @@ for train_type in param.train_types:
     """Conditional probability table as dictionary to easily access the probabilities"""
     train_model_df = train.generate_model_df(trained_data)
 
-    """Store probabilities data frame to file"""
-    common.store_dataframe_to_file(
-        trained_data,
-        csv_path=param.train_csv_path if param.debug else None,
-        text_path=param.train_text_path)
+    if train_type != param.experiments.infrequent_word_filtering:
+        """Store probabilities data frame to file"""
+        common.store_dataframe_to_file(
+            trained_data,
+            csv_path=param.train_csv_path if param.debug else None,
+            text_path=param.train_text_path)
 
-    """Store vocabulary data frame to file"""
-    common.store_dataframe_to_file(
-        {"vocabulary": list(train_unique_vocabulary)},
-        csv_path=None,
-        text_path=param.vocabulary_path)
+        """Store vocabulary data frame to file"""
+        common.store_dataframe_to_file(
+            {"vocabulary": list(train_unique_vocabulary)},
+            csv_path=None,
+            text_path=param.vocabulary_path)
 
-    """Store excluded data frame to file"""
-    common.store_dataframe_to_file(
-        {"removed": [str(i).encode('utf-8') for i in train_excluded_vocab]},
-        csv_path=None,
-        text_path=param.removed_word_path)
+        """Store excluded data frame to file"""
+        common.store_dataframe_to_file(
+            {"removed": [str(i).encode('utf-8') for i in train_excluded_vocab]},
+            csv_path=None,
+            text_path=param.removed_word_path)
 
     """Get all vocabulary and frequency of all the words in TEST dataset"""
     test_vocabulary_freq = classifier.test_clean_tokenize_wrapper(
@@ -97,8 +76,6 @@ for train_type in param.train_types:
         param.vocabulary_col,
         param.excluded_list,
         param.included_list)
-
-    """---------Testing---------"""
 
     """Score calculations"""
     test_cls_scores = classifier.calculate_scores(
@@ -119,8 +96,9 @@ for train_type in param.train_types:
     """Baseline result output"""
     print(f"{train_type} result frequencies: ", nltk.FreqDist(test_classification_dt["right_wrong"]).__repr__())
 
-    """Creating the testing output dataframe with all the required columns"""
-    common.store_dataframe_to_file(
-        test_classification_dt,
-        csv_path=param.result_csv_path if param.debug else None,
-        text_path=param.result_text_path)
+    if train_type != param.experiments.infrequent_word_filtering:
+        """Creating the testing output dataframe with all the required columns"""
+        common.store_dataframe_to_file(
+            test_classification_dt,
+            csv_path=param.result_csv_path if param.debug else None,
+            text_path=param.result_text_path)
