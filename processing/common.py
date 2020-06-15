@@ -6,6 +6,8 @@ import pandas as pd
 from functools import reduce
 from datetime import datetime
 
+# FIXME: Remove
+
 # pd.set_option('mode.sim_interactive', True)
 # pd.set_option('expand_frame_repr', True)
 # pd.set_option('display.column_space', 2)

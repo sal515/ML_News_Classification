@@ -128,6 +128,7 @@ for train_type in param.experiments.train_types:
             freqDist = nltk.FreqDist(classification_dt["right_wrong"])
             accuracy = round((freqDist["right"] / classification_dt["Sentences"].__len__()) * 100, 3)
             # print(accuracy)
+            # FIXME: Remove
 
             param.word_freq_threshold.frequencies_result.append(accuracy)
 
@@ -138,6 +139,7 @@ for train_type in param.experiments.train_types:
             freqDist = nltk.FreqDist(classification_dt["right_wrong"])
             accuracy = round((freqDist["right"] / classification_dt["Sentences"].__len__()) * 100, 3)
             # print(accuracy)
+            # FIXME: Remove
 
             param.word_freq_threshold.percentages_result.append(accuracy)
 
@@ -148,7 +150,8 @@ for train_type in param.experiments.train_types:
 time_taken = time.perf_counter() - timer_offset
 print("\nTotal time elapsed to complete the experiments ", round(time_taken, 3), "s")
 
-# FIXME
+# FIXME: Remove
+
 fig, axs = plt.subplots(2)
 axs[0].grid(True, "both")
 axs[0].set_title("Accuracy vs Removed: Frequency")

@@ -3,6 +3,9 @@ import numpy as np
 import pandas as pd
 import processing.common as common
 
+# FIXME: Remove
+
+
 # pd.set_option('mode.sim_interactive', True)
 # pd.set_option('expand_frame_repr', True)
 # pd.set_option('display.column_space', 2)
@@ -123,9 +126,6 @@ def train_clean_tokenize_wrapper(
     """Create list frequency of the words in the vocabulary """
     vocabulary_freq = common.frequency_distribution(vocabulary)
 
-    # FIXME: Remember to handle Train call of this function
-    # FIXME: Test uses unique_vocab. -> uses vocabulary_freq
-
     """Stopwords filtering: Removing stop words from the vocabulary"""
     if train_type == train_types.stopword:
         for word in stopwords:
@@ -141,6 +141,7 @@ def train_clean_tokenize_wrapper(
             if word in vocabulary_freq:
                 del vocabulary_freq[word]
 
+    # fixme - new model?
     """Infrequent word filtering: Removing infrequent words"""
     if train_type == train_types.infrequent_word_filtering:
         if freq_percent[1] == word_freq_threshold.frequency_str:
@@ -166,9 +167,6 @@ def train_clean_tokenize_wrapper(
             for word in to_be_removed:
                 if word in vocabulary_freq:
                     del vocabulary_freq[word]
-
-    # FIXME: Remember to handle Test call of this function
-    # FIXME: Test uses vocab_freq
 
     return np.sort(np.array(list(vocabulary_freq.keys())))
 
