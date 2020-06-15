@@ -1,17 +1,8 @@
-# import re
-# import time
-# import copy
 import sys
-import nltk
-import string
 import numpy as np
 import pandas as pd
-from functools import reduce
-from datetime import datetime
 import processing.common as common
 
-# FIXME : Remove
-# avoiding ellipses
 # pd.set_option('mode.sim_interactive', True)
 # pd.set_option('expand_frame_repr', True)
 # pd.set_option('display.column_space', 2)
@@ -21,15 +12,19 @@ pd.set_option('display.max_rows', sys.maxsize)
 pd.set_option('display.width', sys.maxsize)
 
 
-# FIXME : Remove
+def generate_model(
+        unique_vocabulary,
+        data_set,
+        classes_col,
+        vocabulary_col,
+        classes_freq,
+        excluded_list,
+        included_list,
+        smoothing):
 
-# excluded_list = """!"#$%&\()*+,:;<=>?@[\\]^`{|}~–—‐‑"""
-# included_list = """'"-_’/."""
-
-
-def generate_model(unique_vocabulary, data_set, classes_col, vocabulary_col, classes_freq, excluded_list, included_list, smoothing):
     temp_class_frequencies = []
     temp_class_probabilities = []
+    cls_keys = []
     temp_data_dict = {"word": list(unique_vocabulary)}
 
     """List of all classes"""
@@ -39,7 +34,11 @@ def generate_model(unique_vocabulary, data_set, classes_col, vocabulary_col, cla
     excluded_vocab = None
     for cls in classes:
         temp_sentences = list(data_set[data_set[classes_col].isin([cls])][vocabulary_col])
-        vocab, excluded_vocab = common.clean_tokenize(temp_sentences, excluded_list, included_list, combine=True)
+        vocab, excluded_vocab = common.clean_tokenize(
+            temp_sentences,
+            excluded_list,
+            included_list,
+            combine=True)
         temp_class_frequencies.append(common.frequency_distribution(vocab))
 
     """Calculating probabilities with smoothing"""
@@ -58,6 +57,8 @@ def generate_model(unique_vocabulary, data_set, classes_col, vocabulary_col, cla
     # FIXME: remove counter not needed?
     # temp_data_dict = {"counter": list(range(0, unique_vocabulary.__len__())), "all_voc": list(unique_vocabulary)}
     for i in range(0, classes.__len__()):
+        cls_keys.append(classes[i] + " freq")
+        cls_keys.append(classes[i])
         temp_data_dict[classes[i] + " freq"] = []
         temp_data_dict[classes[i]] = []
         for w in unique_vocabulary:
@@ -73,21 +74,22 @@ def generate_model(unique_vocabulary, data_set, classes_col, vocabulary_col, cla
             temp_data_dict[classes[i] + " freq"].append(temp_class_frequencies[i][w])
 
     """Calculating class probabilites"""
-    # FIXME something wrong with class freq
+    # FIXME something wrong with class freq - I think it is fixed <<<
     total_classes = common.calc_total_cls_entries(classes_freq)
     classes_prob = classes_freq.copy()
     for (k, v) in classes_freq.items():
         classes_prob[k] = v / total_classes
 
-    return temp_class_frequencies, temp_class_probabilities, classes_prob, temp_data_dict, excluded_vocab
+    return temp_class_frequencies, temp_class_probabilities, classes_prob, temp_data_dict, excluded_vocab, classes, cls_keys
 
 
-def clean_tokenize_freq_dist(train_set, vocabulary_col, excluded_list, included_list, combine):
-    sentences = list(train_set[vocabulary_col])
-    vocabulary, excluded_symbols = common.clean_tokenize(sentences, excluded_list, included_list, combine=combine)
-    vocabulary_freq = common.frequency_distribution(vocabulary)
-    unique_vocabulary = np.sort(np.array(list(vocabulary_freq.keys())))
-    return unique_vocabulary, vocabulary_freq
+def generate_model_df(training_data):
+    """Conditional probability table as dictionary to easily access the probabilities"""
+    if "word" in training_data:
+        model_df = pd.DataFrame(training_data, index=training_data["word"]).to_dict(orient="index")
+    else:
+        raise Exception("Error: word column is not found in training data")
+    return model_df
 
 
 # TEST CODE
