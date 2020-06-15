@@ -177,10 +177,12 @@ def clean_tokenize_wrapper(
     if trainType == "stopwords":
         """Removing stop words from the vocabulary"""
         if is_vocab_list_of_lists:
-            for word in stopwords:
-                for sentence_words in vocabulary_freq:
-                    if word in sentence_words:
-                        del sentence_words[word]
+            # # FIXME: Do i really need this check?
+            # for word in stopwords:
+            #     for sentence_words in vocabulary_freq:
+            #         if word in sentence_words:
+            #             del sentence_words[word]
+            pass
         else:
             for word in stopwords:
                 if word in vocabulary_freq:
@@ -190,16 +192,19 @@ def clean_tokenize_wrapper(
 
         """Removing words with out of range length from the vocabulary"""
         if is_vocab_list_of_lists:
-            all_keys = list(
-                dict(
-                    nltk.FreqDist(list(np.concatenate(list(map(lambda d: list(d.keys()), vocabulary_freq)))))).keys())
+            # FIXME: Do i really need this check?
+            # all_keys = list(
+            #     dict(
+            #         nltk.FreqDist(list(np.concatenate(list(map(lambda d: list(d.keys()), vocabulary_freq)))))).keys())
+            #
+            # to_be_removed = list(filter(lambda x: len(x) <= minWords or len(x) >= maxWords, all_keys))
+            #
+            # for word in to_be_removed:
+            #     for sentence_words in vocabulary_freq:
+            #         if word in sentence_words:
+            #             del sentence_words[word]
+            pass
 
-            to_be_removed = list(filter(lambda x: len(x) <= minWords or len(x) >= maxWords, all_keys))
-
-            for word in to_be_removed:
-                for sentence_words in vocabulary_freq:
-                    if word in sentence_words:
-                        del sentence_words[word]
         else:
             to_be_removed = list(filter(lambda x: len(x) <= minWords or len(x) >= maxWords, vocabulary_freq.keys()))
 
