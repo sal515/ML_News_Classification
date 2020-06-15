@@ -106,6 +106,7 @@ def train_clean_tokenize_wrapper(
         train_type,
         stopwords,
         word_lengths,
+        frequency,
         word_freq_threshold):
     """This function returns the unique words in vocabulary"""
 
