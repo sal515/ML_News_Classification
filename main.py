@@ -112,12 +112,13 @@ def print_label_frequencies_accuracy(classification_dt, classification_df, cls_l
     """Result output"""
     freqDist = nltk.FreqDist(classification_dt["right_wrong"])
     overall_accuracy = round((freqDist["right"] / classification_dt["Sentences"].__len__()) * 100, 3)
-    print(f"\n{train_type} result frequencies: {freqDist.__repr__()} \nOverall Accuracy:  {overall_accuracy}")
+    print(
+        f"\n{train_type} result frequencies: {freqDist.__repr__()} \nOverall Accuracy - ((# of Right / Total) * 100) :  {overall_accuracy} %")
 
-    # accuracy_list = []
-    # f_measure_list = []
+    accuracy_list = []
     precision_list = []
     recall_list = []
+    # f_measure_list = []
 
     for cls in cls_list:
         """Metric - Precision"""
@@ -143,9 +144,9 @@ def print_label_frequencies_accuracy(classification_dt, classification_df, cls_l
     """Harmonic mean/F-measure - Assuming all the weights are same for all the provided classes"""
     hm = [(2 / ((1 / r) + (1 / p))) if r != 0 and p != 0 else 0 for p, r in zip(precision_list, recall_list)]
 
-    print("Precision values: ", list(map(lambda x: f"{x[0]} : {x[1]}", zip(cls_list, precision_list))))
-    print("Recall values: ", list(map(lambda x: f"{x[0]} : {x[1]}", zip(cls_list, recall_list))))
-    print("Harmonic mean : ", list(map(lambda x: f"{x[0]} : {x[1]}", zip(cls_list, hm))))
+    print("Precision : ", list(map(lambda x: f"{x[0]} : {round(x[1], 3)} %", zip(cls_list, precision_list))))
+    print("Recall : ", list(map(lambda x: f"{x[0]} : {round(x[1], 3)} %", zip(cls_list, recall_list))))
+    print("Harmonic mean : ", list(map(lambda x: f"{x[0]} : {round(x[1], 3)} %", zip(cls_list, hm))))
 
     return freqDist, overall_accuracy
 
@@ -176,7 +177,7 @@ for train_type in param.experiments.train_types:
                 (frequency, param.word_freq_threshold.frequency_str))
 
             "Frequency Results metrics"
-            freqDist, overall_accuracy = print_label_frequencies_accuracy(classification_dt, classification_df,cls_list)
+            freqDist, overall_accuracy = print_label_frequencies_accuracy(classification_dt, classification_df, cls_list)
             param.word_freq_threshold.frequencies_result.append(overall_accuracy)
 
         """Lopping through different top percentages"""
@@ -186,7 +187,7 @@ for train_type in param.experiments.train_types:
                 (percentage, param.word_freq_threshold.percentage_str))
 
             "Percentage Results metrics"
-            freqDist, overall_accuracy = print_label_frequencies_accuracy(classification_dt, classification_df,cls_list)
+            freqDist, overall_accuracy = print_label_frequencies_accuracy(classification_dt, classification_df, cls_list)
             param.word_freq_threshold.percentages_result.append(overall_accuracy)
         continue
 
