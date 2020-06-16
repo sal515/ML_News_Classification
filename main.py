@@ -54,26 +54,28 @@ def train_and_test(freq_percent):
         param.included_list,
         param.smoothing)
 
+    train_excluded_vocab = list(np.concatenate([train_excluded_vocab, removed_words]))
+
+
     """Conditional probability table as dictionary to easily access the probabilities"""
     train_model_df = train.generate_model_df(trained_data)
-    if train_type != param.experiments.infrequent_word_filtering:
-        """Store probabilities data frame to file"""
-        common.store_dataframe_to_file(
-            trained_data,
-            csv_path=param.train_csv_path if param.debug else None,
-            text_path=param.train_text_path)
+    """Store probabilities data frame to file"""
+    common.store_dataframe_to_file(
+        trained_data,
+        csv_path=param.train_csv_path if param.debug else None,
+        text_path=param.train_text_path)
 
-        """Store vocabulary data frame to file"""
-        common.store_dataframe_to_file(
-            {"vocabulary": list(train_unique_vocabulary)},
-            csv_path=None,
-            text_path=param.vocabulary_path)
+    """Store vocabulary data frame to file"""
+    common.store_dataframe_to_file(
+        {"vocabulary": list(train_unique_vocabulary)},
+        csv_path=None,
+        text_path=param.vocabulary_path)
 
-        """Store excluded data frame to file"""
-        common.store_dataframe_to_file(
-            {"removed": [str(i).encode('utf-8') for i in train_excluded_vocab]},
-            csv_path=None,
-            text_path=param.removed_word_path)
+    """Store excluded data frame to file"""
+    common.store_dataframe_to_file(
+        {"removed": [str(i).encode('utf-8') for i in train_excluded_vocab]},
+        csv_path=None,
+        text_path=param.removed_word_path)
 
     """Get all vocabulary and frequency of all the words in TEST dataset"""
     test_vocabulary_freq = classifier.test_clean_tokenize_wrapper(
@@ -98,17 +100,11 @@ def train_and_test(freq_percent):
         test_cls_scores,
         param.debug)
 
-    test_classification_df = None
-
-    if train_type != param.experiments.infrequent_word_filtering:
-        """Creating the testing output dataframe with all the required columns"""
-        test_classification_df = common.store_dataframe_to_file(
-            test_classification_dt,
-            csv_path=param.result_csv_path if param.debug else None,
-            text_path=param.result_text_path)
-
-    if train_type == param.experiments.infrequent_word_filtering:
-        test_classification_df = pd.DataFrame(test_classification_dt)
+    """Creating the testing output dataframe with all the required columns"""
+    test_classification_df = common.store_dataframe_to_file(
+        test_classification_dt,
+        csv_path=param.result_csv_path if param.debug else None,
+        text_path=param.result_text_path)
 
     return test_classification_dt, test_classification_df, train_cls_list
 
@@ -170,41 +166,38 @@ train_set, test_set, train_cls_freq, stopwords = common.extract_dataset(
 timer_offset = time.perf_counter()
 
 for train_type in param.experiments.train_types:
-    """Updating result and model file paths for the experiments"""
-    param.get_paths(train_type)
 
     if train_type == param.experiments.infrequent_word_filtering:
         param.update_frequency_thresholds()
 
         for frequency in param.word_freq_threshold.frequencies:
+            param.get_paths(train_type, "frequency", frequency)
             classification_dt, classification_df, cls_list = train_and_test(
                 (frequency, param.word_freq_threshold.frequency_str))
 
             "Frequency Results metrics"
             freqDist, overall_accuracy = print_label_frequencies_accuracy(classification_dt, classification_df,
                                                                           cls_list)
-
             param.word_freq_threshold.frequencies_result.append(overall_accuracy)
 
         for percentage in param.word_freq_threshold.percentages:
+            param.get_paths(train_type, "percentage", percentage)
             classification_dt, classification_df, cls_list = train_and_test(
                 (percentage, param.word_freq_threshold.percentage_str))
 
             "Percentage Results metrics"
             freqDist, overall_accuracy = print_label_frequencies_accuracy(classification_dt, classification_df,
                                                                           cls_list)
-
             param.word_freq_threshold.percentages_result.append(overall_accuracy)
-
         continue
 
+    """Updating result and model file paths for the experiments"""
+    param.get_paths(train_type, None, None)
     classification_dt, classification_df, cls_list = train_and_test(None)
     print_label_frequencies_accuracy(classification_dt, classification_df, cls_list)
 
 time_taken = time.perf_counter() - timer_offset
 print("\nTotal time elapsed to complete the experiments ", round(time_taken, 3), "s")
 
-# FIXME: Remove
-
-
+"""Plotting the accurary for infrequeny words experiments"""
 output_plots()
