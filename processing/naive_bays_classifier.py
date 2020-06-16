@@ -28,7 +28,7 @@ def classify_and_generate_result(test_set, test_vocabulary_freq, train_cls_list,
 
     """ Adding columns for dataframe of test ouptut"""
     if "Title" in test_set:
-        classification_dt = {"Sentences": [str(i).encode('utf-8') for i in test_set["Title"]]}
+        classification_dt = {"Title": [str(i).encode('utf-8') for i in test_set["Title"]]}
     else:
         raise Exception("Title column not found for testing dataset")
     if debug: classification_dt.update({"Cleaned Sentences": test_vocabulary_freq})
@@ -36,11 +36,11 @@ def classify_and_generate_result(test_set, test_vocabulary_freq, train_cls_list,
     for i in range(0, train_cls_list.__len__()):
         classification_dt.update({str(train_cls_list[i]): [x[i] for x in cls_scores]})
     if "Post Type" in test_set:
-        classification_dt.update({"True Classification": list(test_set["Post Type"])})
+        classification_dt.update({"Correct_Classification": list(test_set["Post Type"])})
     else:
         raise Exception("Post Type column not found for testing dataset")
     right_wrong_list = [("right" if x == y else "wrong") for x, y in
-                        zip(classification_dt["Classification"], classification_dt["True Classification"])]
+                        zip(classification_dt["Classification"], classification_dt["Correct_Classification"])]
     classification_dt.update({"right_wrong": right_wrong_list})
 
     return classification_dt

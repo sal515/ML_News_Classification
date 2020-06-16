@@ -111,7 +111,7 @@ def train_and_test(freq_percent):
 def print_label_frequencies_accuracy(classification_dt, classification_df, cls_list):
     """Result output"""
     freqDist = nltk.FreqDist(classification_dt["right_wrong"])
-    overall_accuracy = round((freqDist["right"] / classification_dt["Sentences"].__len__()) * 100, 3)
+    overall_accuracy = round((freqDist["right"] / classification_dt["Title"].__len__()) * 100, 3)
     print(
         f"\n{train_type} result frequencies: {freqDist.__repr__()} \nOverall Accuracy - ((# of Right / Total) * 100) :  {overall_accuracy} %")
 
@@ -132,8 +132,8 @@ def print_label_frequencies_accuracy(classification_dt, classification_df, cls_l
             precision_list.append(0)
 
         """Metric - Recall"""
-        by_true_classification_df = classification_df[classification_df["True Classification"].isin([cls])]
-        number_of_items = len(list(by_true_classification_df["True Classification"]))
+        by_true_classification_df = classification_df[classification_df["Correct_Classification"].isin([cls])]
+        number_of_items = len(list(by_true_classification_df["Correct_Classification"]))
         correct_classification = len(
             list((by_true_classification_df[by_true_classification_df["right_wrong"].isin(["right"])])["right_wrong"]))
         try:

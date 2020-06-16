@@ -56,21 +56,21 @@ def generate_model(
 
     """"Creating Dataframe to save to txt file"""
     for i in range(0, classes.__len__()):
-        cls_keys.append(classes[i] + " freq")
+        cls_keys.append(classes[i] + "_freq")
         cls_keys.append(classes[i])
-        data_dict[classes[i] + " freq"] = []
+        data_dict[classes[i] + "_freq"] = []
         data_dict[classes[i]] = []
         for w in unique_vocabulary:
             if w not in class_word_probabilities[i]:
                 data_dict[classes[i]].append("-")
-                data_dict[classes[i] + " freq"].append("-")
+                data_dict[classes[i] + "_freq"].append("-")
             else:
                 data_dict[classes[i]].append(class_word_probabilities[i][w])
 
             if w not in class_word_frequencies[i]:
-                data_dict[classes[i] + " freq"].append(smoothing)
+                data_dict[classes[i] + "_freq"].append(smoothing)
                 continue
-            data_dict[classes[i] + " freq"].append(class_word_frequencies[i][w])
+            data_dict[classes[i] + "_freq"].append(class_word_frequencies[i][w])
 
     """Calculating each class probabilities"""
     total_classes = common.calc_total_cls_entries(classes_freq)
