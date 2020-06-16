@@ -1,4 +1,7 @@
+import os
 import numpy as np
+
+
 class param:
     debug = 0
 
@@ -17,7 +20,6 @@ class param:
     smoothing = 0.5
     log_base = 10
 
-
     train_text_path = None
     vocabulary_path = None
     removed_word_path = None
@@ -26,7 +28,6 @@ class param:
     result_csv_path = None
 
     """Experiment types"""
-
     class experiments:
         baseline = "baseline"
         stopword = "stopword"
@@ -36,13 +37,11 @@ class param:
                        infrequent_word_filtering]
 
     """word length experiment"""
-
     class word_lengths:
         min_words = 2
         max_words = 9
 
     """infrequent word filtering experiment"""
-
     class word_freq_threshold:
         frequency_str = "frequency"
         percentage_str = "percentage"
@@ -57,14 +56,24 @@ class param:
         percentages_result = []
 
     @staticmethod
-    def get_paths(trainType):
+    def get_paths(trainType, frequency_or_percentage_str, val):
         """Output file paths"""
-        param.train_text_path = "./output/model-2018.txt" if trainType == "baseline" else f"./output/{trainType}-model.txt"
-        param.vocabulary_path = "./output/vocabulary.txt" if trainType == "baseline" else f"./output/{trainType}-vocabulary.txt"
-        param.removed_word_path = "./output/removed_word.txt" if trainType == "baseline" else f"./output/{trainType}-removed_word.txt"
-        param.result_text_path = "./output/baseline_result.txt" if trainType == "baseline" else f"./output/{trainType}-result.txt"
-        param.train_csv_path = "./output/task1.csv"
-        param.result_csv_path = "./output/task2.csv"
+        param.train_text_path = "./output/model-2018.txt" if trainType == param.experiments.baseline else f"./output/{trainType}-model.txt"
+        param.vocabulary_path = "./output/vocabulary.txt" if trainType == param.experiments.baseline else f"./output/{trainType}-vocabulary.txt"
+        param.removed_word_path = "./output/removed_word.txt" if trainType == param.experiments.baseline else f"./output/{trainType}-removed_word.txt"
+        param.result_text_path = "./output/baseline_result.txt" if trainType == param.experiments.baseline else f"./output/{trainType}-result.txt"
+        # param.train_csv_path = "./output/task1.csv"
+        # param.result_csv_path = "./output/task2.csv"
+
+        if frequency_or_percentage_str != None and val != None:
+            param.createDir(f"./output/{param.experiments.infrequent_word_filtering}/")
+            """Output file paths"""
+            param.train_text_path = f"./output/{param.experiments.infrequent_word_filtering}/{trainType}-{frequency_or_percentage_str}-{val}-model.txt"
+            param.vocabulary_path = f"./output/{param.experiments.infrequent_word_filtering}/{trainType}-{frequency_or_percentage_str}-{val}-vocabulary.txt"
+            param.removed_word_path = f"./output/{param.experiments.infrequent_word_filtering}/{trainType}-{frequency_or_percentage_str}-{val}-removed_word.txt"
+            param.result_text_path = f"./output/{param.experiments.infrequent_word_filtering}/{trainType}-{frequency_or_percentage_str}-{val}-result.txt"
+            # param.train_csv_path = "./output/task1.csv"
+            # param.result_csv_path = "./output/task2.csv"
 
     @staticmethod
     def update_frequency_thresholds():
@@ -80,3 +89,10 @@ class param:
             (param.word_freq_threshold.max_top_percentage +
              param.word_freq_threshold.steps),
             param.word_freq_threshold.steps))
+
+    @staticmethod
+    def createDir(dirName):
+        dir = os.path.join("", dirName)
+        # dir = os.path.join("./", dirName)
+        if not os.path.exists(dir):
+            os.mkdir(dir)

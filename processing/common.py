@@ -5,11 +5,7 @@ import numpy as np
 import pandas as pd
 from functools import reduce
 from datetime import datetime
-
-# pd.set_option('mode.sim_interactive', True)
-# pd.set_option('expand_frame_repr', True)
-# pd.set_option('display.column_space', 2)
-# pd.set_option('display.max_colwidth', sys.maxsize)
+from processing.param import param
 
 pd.set_option('display.max_columns', sys.maxsize)
 pd.set_option('display.max_rows', sys.maxsize)
@@ -52,7 +48,7 @@ def extract_dataset(
 def tokenize(untokenized_string):
     """Tokenize the title strings into separate words"""
     tweet_tokenizer = nltk.TweetTokenizer()
-    # FIXME: Remove
+    # Another tokenizer - didn't handle "'s" for words
     # return nltk.word_tokenize(s)
     return tweet_tokenizer.tokenize(untokenized_string)
 
@@ -107,7 +103,7 @@ def store_dataframe_to_file(data_dict, csv_path, text_path):
     dataframe = pd.DataFrame(data_dict)
     if csv_path is not None:
         dataframe.to_csv(csv_path)
+    param.createDir("./output/")
     with open(text_path, "w") as f:
         f.write(dataframe.__repr__())
-
-
+    return dataframe
