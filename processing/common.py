@@ -5,6 +5,8 @@ import numpy as np
 import pandas as pd
 from functools import reduce
 from datetime import datetime
+from processing.param import param
+
 pd.set_option('display.max_columns', sys.maxsize)
 pd.set_option('display.max_rows', sys.maxsize)
 pd.set_option('display.width', sys.maxsize)
@@ -101,6 +103,7 @@ def store_dataframe_to_file(data_dict, csv_path, text_path):
     dataframe = pd.DataFrame(data_dict)
     if csv_path is not None:
         dataframe.to_csv(csv_path)
+    param.createDir("./output/")
     with open(text_path, "w") as f:
         f.write(dataframe.__repr__())
     return dataframe

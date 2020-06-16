@@ -9,10 +9,10 @@ import nltk
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import processing.training as train
 import processing.common as common
-import processing.naive_bays_classifier as classifier
 from processing.param import param
+import processing.training as train
+import processing.naive_bays_classifier as classifier
 
 
 def plot_output():

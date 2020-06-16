@@ -92,6 +92,7 @@ class param:
 
     @staticmethod
     def createDir(dirName):
-        dir = os.path.join("./", dirName)
+        dir = os.path.join("", dirName)
+        # dir = os.path.join("./", dirName)
         if not os.path.exists(dir):
             os.mkdir(dir)
