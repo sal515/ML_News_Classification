@@ -2,16 +2,6 @@ import sys
 import numpy as np
 import pandas as pd
 import processing.common as common
-
-# FIXME: Remove
-
-
-# pd.set_option('mode.sim_interactive', True)
-# pd.set_option('expand_frame_repr', True)
-# pd.set_option('display.column_space', 2)
-# pd.set_option('display.max_colwidth', sys.maxsize)
-# from processing.common import clean_tokenize, frequency_distribution
-
 pd.set_option('display.max_columns', sys.maxsize)
 pd.set_option('display.max_rows', sys.maxsize)
 pd.set_option('display.width', sys.maxsize)
@@ -151,7 +141,6 @@ def train_clean_tokenize_wrapper(
                 del vocabulary_freq[word]
                 removed_words.append(word)
 
-    # fixme - new model?
     """Infrequent word filtering: Removing infrequent words"""
     if train_type == train_types.infrequent_word_filtering:
         if freq_percent[1] == word_freq_threshold.frequency_str:

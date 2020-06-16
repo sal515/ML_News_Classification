@@ -15,7 +15,7 @@ import processing.naive_bays_classifier as classifier
 from processing.param import param
 
 
-def output_plots():
+def plot_output():
     fig, axs = plt.subplots(2)
     axs[0].grid(True, "both")
     axs[0].set_title("Accuracy vs Removed: Frequency")
@@ -55,9 +55,9 @@ def train_and_test(freq_percent):
 
     train_excluded_vocab = list(np.concatenate([train_excluded_vocab, removed_words]))
 
-
     """Conditional probability table as dictionary to easily access the probabilities"""
     train_model_df = train.generate_model_df(trained_data)
+
     """Store probabilities data frame to file"""
     common.store_dataframe_to_file(
         trained_data,
@@ -112,7 +112,7 @@ def print_label_frequencies_accuracy(classification_dt, classification_df, cls_l
     """Result output"""
     freqDist = nltk.FreqDist(classification_dt["right_wrong"])
     overall_accuracy = round((freqDist["right"] / classification_dt["Sentences"].__len__()) * 100, 3)
-    print(f"\n{train_type} result frequencies: {freqDist.__repr__()}, Overall Accuracy:  {overall_accuracy}")
+    print(f"\n{train_type} result frequencies: {freqDist.__repr__()} \nOverall Accuracy:  {overall_accuracy}")
 
     # accuracy_list = []
     # f_measure_list = []
@@ -165,38 +165,39 @@ train_set, test_set, train_cls_freq, stopwords = common.extract_dataset(
 timer_offset = time.perf_counter()
 
 for train_type in param.experiments.train_types:
-
+    """Handling the infrequent words filtering experiment differntly"""
     if train_type == param.experiments.infrequent_word_filtering:
         param.update_frequency_thresholds()
 
+        """Lopping through different frequencies"""
         for frequency in param.word_freq_threshold.frequencies:
             param.get_paths(train_type, "frequency", frequency)
             classification_dt, classification_df, cls_list = train_and_test(
                 (frequency, param.word_freq_threshold.frequency_str))
 
             "Frequency Results metrics"
-            freqDist, overall_accuracy = print_label_frequencies_accuracy(classification_dt, classification_df,
-                                                                          cls_list)
+            freqDist, overall_accuracy = print_label_frequencies_accuracy(classification_dt, classification_df,cls_list)
             param.word_freq_threshold.frequencies_result.append(overall_accuracy)
 
+        """Lopping through different top percentages"""
         for percentage in param.word_freq_threshold.percentages:
             param.get_paths(train_type, "percentage", percentage)
             classification_dt, classification_df, cls_list = train_and_test(
                 (percentage, param.word_freq_threshold.percentage_str))
 
             "Percentage Results metrics"
-            freqDist, overall_accuracy = print_label_frequencies_accuracy(classification_dt, classification_df,
-                                                                          cls_list)
+            freqDist, overall_accuracy = print_label_frequencies_accuracy(classification_dt, classification_df,cls_list)
             param.word_freq_threshold.percentages_result.append(overall_accuracy)
         continue
 
-    """Updating result and model file paths for the experiments"""
+    """Updating result and model file paths for all other experiments"""
     param.get_paths(train_type, None, None)
     classification_dt, classification_df, cls_list = train_and_test(None)
     print_label_frequencies_accuracy(classification_dt, classification_df, cls_list)
 
+"""Determining the total time taken to complete the experiments"""
 time_taken = time.perf_counter() - timer_offset
 print("\nTotal time elapsed to complete the experiments ", round(time_taken, 3), "s")
 
 """Plotting the accurary for infrequeny words experiments"""
-output_plots()
+plot_output()

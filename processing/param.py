@@ -1,5 +1,4 @@
 import os
-
 import numpy as np
 
 
@@ -29,7 +28,6 @@ class param:
     result_csv_path = None
 
     """Experiment types"""
-
     class experiments:
         baseline = "baseline"
         stopword = "stopword"
@@ -39,13 +37,11 @@ class param:
                        infrequent_word_filtering]
 
     """word length experiment"""
-
     class word_lengths:
         min_words = 2
         max_words = 9
 
     """infrequent word filtering experiment"""
-
     class word_freq_threshold:
         frequency_str = "frequency"
         percentage_str = "percentage"

@@ -12,9 +12,7 @@ def calculate_scores(test_vocabulary_freq, train_cls_list, train_cls_prob, model
             for word_freq in words_freqs.items():
                 if word_freq[0] in model_df:
                     score += word_freq[1] * math.log(model_df[word_freq[0]][cls], log_base)
-                    # print(w_f[0], " -> ", model[w_f[0]][cls])
             temp.append(score)
-            # print(w_f_d, " -> ", score)
         cls_scores.append(temp)
     return cls_scores
 
