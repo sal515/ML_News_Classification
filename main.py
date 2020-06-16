@@ -5,7 +5,6 @@
 # For COMP 472 Section - ABIX – Summer 2020
 # --------------------------------------------------------
 import time
-
 import nltk
 import numpy as np
 import pandas as pd
@@ -13,7 +12,7 @@ import matplotlib.pyplot as plt
 import processing.training as train
 import processing.common as common
 import processing.naive_bays_classifier as classifier
-from processing.input import param
+from processing.param import param
 
 
 def output_plots():
@@ -31,7 +30,7 @@ def output_plots():
 
 def train_and_test(freq_percent):
     """Get all vocabulary and frequency of all the words in TRAIN dataset"""
-    train_unique_vocabulary = train.train_clean_tokenize_wrapper(
+    train_unique_vocabulary, removed_words = train.train_clean_tokenize_wrapper(
         train_set,
         param.vocabulary_col,
         param.excluded_list,

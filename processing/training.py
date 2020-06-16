@@ -113,6 +113,8 @@ def train_clean_tokenize_wrapper(
         word_freq_threshold):
     """This function returns the unique words in vocabulary"""
 
+    removed_words = []
+
     """List of titles/sentences in the dataset"""
     sentences = list(data_set[vocabulary_col])
 
@@ -126,11 +128,18 @@ def train_clean_tokenize_wrapper(
     """Create list frequency of the words in the vocabulary """
     vocabulary_freq = common.frequency_distribution(vocabulary)
 
+    """Removing included punctuations by itself"""
+    for punctuation in list(included_list):
+        if punctuation in vocabulary:
+            del vocabulary_freq[punctuation]
+            removed_words.append(punctuation)
+
     """Stopwords filtering: Removing stop words from the vocabulary"""
     if train_type == train_types.stopword:
         for word in stopwords:
             if word in vocabulary_freq:
                 del vocabulary_freq[word]
+                removed_words.append(word)
 
     """Word length filtering: Removing words with out of range length from the vocabulary"""
     if train_type == train_types.word_length:
@@ -140,6 +149,7 @@ def train_clean_tokenize_wrapper(
         for word in to_be_removed:
             if word in vocabulary_freq:
                 del vocabulary_freq[word]
+                removed_words.append(word)
 
     # fixme - new model?
     """Infrequent word filtering: Removing infrequent words"""
@@ -154,6 +164,8 @@ def train_clean_tokenize_wrapper(
             for word in to_be_removed:
                 if word in vocabulary_freq:
                     del vocabulary_freq[word]
+                    removed_words.append(word)
+
 
         elif freq_percent[1] == word_freq_threshold.percentage_str:
             print("\nTop percetage >= ", freq_percent[0])
@@ -167,8 +179,9 @@ def train_clean_tokenize_wrapper(
             for word in to_be_removed:
                 if word in vocabulary_freq:
                     del vocabulary_freq[word]
+                    removed_words.append(word)
 
-    return np.sort(np.array(list(vocabulary_freq.keys())))
+    return np.sort(np.array(list(vocabulary_freq.keys()))), np.array(removed_words)
 
 
 # TEST CODE
