@@ -16,6 +16,19 @@ import processing.naive_bays_classifier as classifier
 from processing.input import param
 
 
+def output_plots():
+    fig, axs = plt.subplots(2)
+    axs[0].grid(True, "both")
+    axs[0].set_title("Accuracy vs Removed: Frequency")
+    axs[0].set(xlabel="Frequency", ylabel="Accuracy")
+    axs[0].plot(param.word_freq_threshold.frequencies, param.word_freq_threshold.frequencies_result)
+    axs[1].grid(True, "both")
+    axs[1].set_title("Accuracy vs Removed: Top Frequent Words")
+    axs[1].set(xlabel="Percentage (%)", ylabel="Accuracy")
+    axs[1].plot(param.word_freq_threshold.percentages, param.word_freq_threshold.percentages_result)
+    plt.show()
+
+
 def train_and_test(freq_percent):
     """Get all vocabulary and frequency of all the words in TRAIN dataset"""
     train_unique_vocabulary = train.train_clean_tokenize_wrapper(
@@ -85,19 +98,61 @@ def train_and_test(freq_percent):
         test_cls_scores,
         param.debug)
 
-    """Result output"""
-    freqDist = nltk.FreqDist(test_classification_dt["right_wrong"])
-    accuracy = round((freqDist["right"] / test_classification_dt["Sentences"].__len__()) * 100, 3)
-    print(f"\n{train_type} result frequencies: {freqDist.__repr__()}, Accuracy:  {accuracy}")
+    test_classification_df = None
 
     if train_type != param.experiments.infrequent_word_filtering:
         """Creating the testing output dataframe with all the required columns"""
-        common.store_dataframe_to_file(
+        test_classification_df = common.store_dataframe_to_file(
             test_classification_dt,
             csv_path=param.result_csv_path if param.debug else None,
             text_path=param.result_text_path)
 
-    return test_classification_dt
+    if train_type == param.experiments.infrequent_word_filtering:
+        test_classification_df = pd.DataFrame(test_classification_dt)
+
+    return test_classification_dt, test_classification_df, train_cls_list
+
+
+def print_label_frequencies_accuracy(classification_dt, classification_df, cls_list):
+    """Result output"""
+    freqDist = nltk.FreqDist(classification_dt["right_wrong"])
+    overall_accuracy = round((freqDist["right"] / classification_dt["Sentences"].__len__()) * 100, 3)
+    print(f"\n{train_type} result frequencies: {freqDist.__repr__()}, Overall Accuracy:  {overall_accuracy}")
+
+    # accuracy_list = []
+    # f_measure_list = []
+    precision_list = []
+    recall_list = []
+
+    for cls in cls_list:
+        """Metric - Precision"""
+        by_classification_df = classification_df[classification_df["Classification"].isin([cls])]
+        classified_as_correct = len(list(by_classification_df["Classification"]))
+        correct_classification = len(
+            list((by_classification_df[by_classification_df["right_wrong"].isin(["right"])])["right_wrong"]))
+        try:
+            precision_list.append((correct_classification / classified_as_correct) * 100)
+        except ZeroDivisionError:
+            precision_list.append(0)
+
+        """Metric - Recall"""
+        by_true_classification_df = classification_df[classification_df["True Classification"].isin([cls])]
+        number_of_items = len(list(by_true_classification_df["True Classification"]))
+        correct_classification = len(
+            list((by_true_classification_df[by_true_classification_df["right_wrong"].isin(["right"])])["right_wrong"]))
+        try:
+            recall_list.append((correct_classification / number_of_items) * 100)
+        except ZeroDivisionError:
+            precision_list.append(0)
+
+    """Harmonic mean/F-measure - Assuming all the weights are same for all the provided classes"""
+    hm = [(2 / ((1 / r) + (1 / p))) if r != 0 and p != 0 else 0 for p, r in zip(precision_list, recall_list)]
+
+    print("Precision values: ", list(map(lambda x: f"{x[0]} : {x[1]}", zip(cls_list, precision_list))))
+    print("Recall values: ", list(map(lambda x: f"{x[0]} : {x[1]}", zip(cls_list, recall_list))))
+    print("Harmonic mean : ", list(map(lambda x: f"{x[0]} : {x[1]}", zip(cls_list, hm))))
+
+    return freqDist, overall_accuracy
 
 
 """---------Data Extraction---------"""
@@ -122,43 +177,34 @@ for train_type in param.experiments.train_types:
         param.update_frequency_thresholds()
 
         for frequency in param.word_freq_threshold.frequencies:
-            classification_dt = train_and_test((frequency, param.word_freq_threshold.frequency_str))
+            classification_dt, classification_df, cls_list = train_and_test(
+                (frequency, param.word_freq_threshold.frequency_str))
 
             "Frequency Results metrics"
-            freqDist = nltk.FreqDist(classification_dt["right_wrong"])
-            accuracy = round((freqDist["right"] / classification_dt["Sentences"].__len__()) * 100, 3)
-            # print(accuracy)
-            # FIXME: Remove
+            freqDist, overall_accuracy = print_label_frequencies_accuracy(classification_dt, classification_df,
+                                                                          cls_list)
 
-            param.word_freq_threshold.frequencies_result.append(accuracy)
+            param.word_freq_threshold.frequencies_result.append(overall_accuracy)
 
         for percentage in param.word_freq_threshold.percentages:
-            classification_dt = train_and_test((percentage, param.word_freq_threshold.percentage_str))
+            classification_dt, classification_df, cls_list = train_and_test(
+                (percentage, param.word_freq_threshold.percentage_str))
 
             "Percentage Results metrics"
-            freqDist = nltk.FreqDist(classification_dt["right_wrong"])
-            accuracy = round((freqDist["right"] / classification_dt["Sentences"].__len__()) * 100, 3)
-            # print(accuracy)
-            # FIXME: Remove
+            freqDist, overall_accuracy = print_label_frequencies_accuracy(classification_dt, classification_df,
+                                                                          cls_list)
 
-            param.word_freq_threshold.percentages_result.append(accuracy)
+            param.word_freq_threshold.percentages_result.append(overall_accuracy)
 
         continue
 
-    classification_dt = train_and_test(None)
+    classification_dt, classification_df, cls_list = train_and_test(None)
+    print_label_frequencies_accuracy(classification_dt, classification_df, cls_list)
 
 time_taken = time.perf_counter() - timer_offset
 print("\nTotal time elapsed to complete the experiments ", round(time_taken, 3), "s")
 
 # FIXME: Remove
 
-fig, axs = plt.subplots(2)
-axs[0].grid(True, "both")
-axs[0].set_title("Accuracy vs Removed: Frequency")
-axs[0].set(xlabel="Frequency", ylabel="Accuracy")
-axs[0].plot(param.word_freq_threshold.frequencies, param.word_freq_threshold.frequencies_result)
-axs[1].grid(True, "both")
-axs[1].set_title("Accuracy vs Removed: Top Frequent Words")
-axs[1].set(xlabel="Percentage (%)", ylabel="Accuracy")
-axs[1].plot(param.word_freq_threshold.percentages, param.word_freq_threshold.percentages_result)
-plt.show()
+
+output_plots()

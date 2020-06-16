@@ -112,4 +112,4 @@ def store_dataframe_to_file(data_dict, csv_path, text_path):
     with open(text_path, "w") as f:
         f.write(dataframe.__repr__())
 
-
+    return dataframe
