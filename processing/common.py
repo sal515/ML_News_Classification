@@ -98,12 +98,28 @@ def calc_total_cls_entries(classes_freq):
     return reduce((lambda x, y: x + y), list(classes_freq.values()))
 
 
-def store_dataframe_to_file(data_dict, csv_path, text_path):
+def store_dataframe_to_file(data_dict, csv_path, output_dir, debug_dir, fileName):
     """Save the dataframe to txt file, and csv on debug"""
     dataframe = pd.DataFrame(data_dict)
-    if csv_path is not None:
-        dataframe.to_csv(csv_path)
-    param.createDir("./output/")
-    with open(text_path, "w") as f:
-        f.write(dataframe.__repr__())
+    output_path = "".join([output_dir if not param.isInfrequentExp else param.infrequent_exp_output_dir, fileName])
+
+    # FIXME: Get txt file from datafram
+    # FIXME Add line number
+    param.createDir(output_dir)
+    lines = []
+    for i, line in enumerate(dataframe.to_numpy()):
+        lines.append("  ".join(np.concatenate([[i], [str(i) for i in line]])).__add__("\n"))
+    with open(output_path, "w") as f:
+        for line in lines:
+            f.write(line)
+
+    if param.debug:
+        debug_path = "".join([debug_dir if not param.isInfrequentExp else param.infrequent_exp_debug_dir, fileName])
+        if csv_path is not None:
+            dataframe.to_csv(csv_path)
+
+        param.createDir(debug_dir)
+        with open(debug_path, "w") as f:
+            f.write(dataframe.__repr__())
+
     return dataframe

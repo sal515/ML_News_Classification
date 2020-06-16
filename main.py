@@ -61,20 +61,26 @@ def train_and_test(freq_percent):
     """Store probabilities data frame to file"""
     common.store_dataframe_to_file(
         trained_data,
-        csv_path=param.train_csv_path if param.debug else None,
-        text_path=param.train_text_path)
+        csv_path=param.train_csv_name if param.debug else None,
+        output_dir=param.output_dir,
+        debug_dir=param.debug_dir,
+        fileName=param.train_text_name)
 
     """Store vocabulary data frame to file"""
     common.store_dataframe_to_file(
         {"vocabulary": list(train_unique_vocabulary)},
         csv_path=None,
-        text_path=param.vocabulary_path)
+        output_dir=param.output_dir,
+        debug_dir=param.debug_dir,
+        fileName=param.vocabulary_name)
 
     """Store excluded data frame to file"""
     common.store_dataframe_to_file(
         {"removed": [str(i).encode('utf-8') for i in train_excluded_vocab]},
         csv_path=None,
-        text_path=param.removed_word_path)
+        output_dir=param.output_dir,
+        debug_dir=param.debug_dir,
+        fileName=param.removed_word_name)
 
     """Get all vocabulary and frequency of all the words in TEST dataset"""
     test_vocabulary_freq = classifier.test_clean_tokenize_wrapper(
@@ -102,8 +108,10 @@ def train_and_test(freq_percent):
     """Creating the testing output dataframe with all the required columns"""
     test_classification_df = common.store_dataframe_to_file(
         test_classification_dt,
-        csv_path=param.result_csv_path if param.debug else None,
-        text_path=param.result_text_path)
+        csv_path=param.result_csv_name if param.debug else None,
+        output_dir=param.output_dir,
+        debug_dir=param.debug_dir,
+        fileName=param.result_text_name)
 
     return test_classification_dt, test_classification_df, train_cls_list
 
@@ -168,6 +176,7 @@ timer_offset = time.perf_counter()
 for train_type in param.experiments.train_types:
     """Handling the infrequent words filtering experiment differntly"""
     if train_type == param.experiments.infrequent_word_filtering:
+        param.isInfrequentExp = True
         param.update_frequency_thresholds()
 
         """Lopping through different frequencies"""
@@ -192,6 +201,7 @@ for train_type in param.experiments.train_types:
         continue
 
     """Updating result and model file paths for all other experiments"""
+    param.isInfrequentExp = False
     param.get_paths(train_type, None, None)
     classification_dt, classification_df, cls_list = train_and_test(None)
     print_label_frequencies_accuracy(classification_dt, classification_df, cls_list)
@@ -200,5 +210,6 @@ for train_type in param.experiments.train_types:
 time_taken = time.perf_counter() - timer_offset
 print("\nTotal time elapsed to complete the experiments ", round(time_taken, 3), "s")
 
+# FIXME : fix plot x axis
 """Plotting the accurary for infrequeny words experiments"""
 plot_output()

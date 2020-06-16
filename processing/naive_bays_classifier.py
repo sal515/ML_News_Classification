@@ -31,7 +31,7 @@ def classify_and_generate_result(test_set, test_vocabulary_freq, train_cls_list,
         classification_dt = {"Title": [str(i).encode('utf-8') for i in test_set["Title"]]}
     else:
         raise Exception("Title column not found for testing dataset")
-    if debug: classification_dt.update({"Cleaned Sentences": test_vocabulary_freq})
+    # if debug: classification_dt.update({"Cleaned Sentences": test_vocabulary_freq})
     classification_dt.update({"Classification": classification_out_list})
     for i in range(0, train_cls_list.__len__()):
         classification_dt.update({str(train_cls_list[i]): [x[i] for x in cls_scores]})

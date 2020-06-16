@@ -20,14 +20,10 @@ class param:
     smoothing = 0.5
     log_base = 10
 
-    train_text_path = None
-    vocabulary_path = None
-    removed_word_path = None
-    result_text_path = None
-    train_csv_path = None
-    result_csv_path = None
+    isInfrequentExp = False
 
     """Experiment types"""
+
     class experiments:
         baseline = "baseline"
         stopword = "stopword"
@@ -37,11 +33,13 @@ class param:
                        infrequent_word_filtering]
 
     """word length experiment"""
+
     class word_lengths:
         min_words = 2
         max_words = 9
 
     """infrequent word filtering experiment"""
+
     class word_freq_threshold:
         frequency_str = "frequency"
         percentage_str = "percentage"
@@ -55,25 +53,45 @@ class param:
         percentages = None
         percentages_result = []
 
+    """Output paths"""
+    output_dir = "./output/"
+    debug_dir = "./debug/"
+    infrequent_exp_output_dir = "".join([output_dir, experiments.infrequent_word_filtering, "/"])
+    infrequent_exp_debug_dir = "".join([debug_dir, experiments.infrequent_word_filtering, "/"])
+    train_text_name = None
+    vocabulary_name = None
+    removed_word_name = None
+    result_text_name = None
+    train_csv_name = None
+    result_csv_name = None
+
     @staticmethod
     def get_paths(trainType, frequency_or_percentage_str, val):
         """Output file paths"""
-        param.train_text_path = "./output/model-2018.txt" if trainType == param.experiments.baseline else f"./output/{trainType}-model.txt"
-        param.vocabulary_path = "./output/vocabulary.txt" if trainType == param.experiments.baseline else f"./output/{trainType}-vocabulary.txt"
-        param.removed_word_path = "./output/removed_word.txt" if trainType == param.experiments.baseline else f"./output/{trainType}-removed_word.txt"
-        param.result_text_path = "./output/baseline_result.txt" if trainType == param.experiments.baseline else f"./output/{trainType}-result.txt"
-        # param.train_csv_path = "./output/task1.csv"
-        # param.result_csv_path = "./output/task2.csv"
+        param.train_text_name = f"model-2018.txt" if trainType == param.experiments.baseline else f"{trainType}-model.txt"
 
-        if frequency_or_percentage_str != None and val != None:
-            param.createDir(f"./output/{param.experiments.infrequent_word_filtering}/")
+        param.vocabulary_name = f"vocabulary.txt" if trainType == param.experiments.baseline else f"{trainType}-vocabulary.txt"
+
+        param.removed_word_name = f"removed_word.txt" if trainType == param.experiments.baseline else f"{trainType}-removed_word.txt"
+
+        param.result_text_name = f"baseline_result.txt" if trainType == param.experiments.baseline else f"{trainType}-result.txt"
+        # param.train_csv_path = f"task1.csv"
+        # param.result_csv_path = f"task2.csv"
+
+        if frequency_or_percentage_str is not None and val is not None:
+            if param.debug: param.createDir(f"{param.infrequent_exp_debug_dir}/")
+            param.createDir(f"{param.infrequent_exp_output_dir}/")
+
             """Output file paths"""
-            param.train_text_path = f"./output/{param.experiments.infrequent_word_filtering}/{trainType}-{frequency_or_percentage_str}-{val}-model.txt"
-            param.vocabulary_path = f"./output/{param.experiments.infrequent_word_filtering}/{trainType}-{frequency_or_percentage_str}-{val}-vocabulary.txt"
-            param.removed_word_path = f"./output/{param.experiments.infrequent_word_filtering}/{trainType}-{frequency_or_percentage_str}-{val}-removed_word.txt"
-            param.result_text_path = f"./output/{param.experiments.infrequent_word_filtering}/{trainType}-{frequency_or_percentage_str}-{val}-result.txt"
-            # param.train_csv_path = "./output/task1.csv"
-            # param.result_csv_path = "./output/task2.csv"
+            param.train_text_name = f"{trainType}-{frequency_or_percentage_str}-{val}-model.txt"
+
+            param.vocabulary_name = f"{trainType}-{frequency_or_percentage_str}-{val}-vocabulary.txt"
+
+            param.removed_word_name = f"{trainType}-{frequency_or_percentage_str}-{val}-removed_word.txt"
+
+            param.result_text_name = f"{trainType}-{frequency_or_percentage_str}-{val}-result.txt"
+            # param.train_csv_path = "task1.csv"
+            # param.result_csv_path = "task2.csv"
 
     @staticmethod
     def update_frequency_thresholds():
