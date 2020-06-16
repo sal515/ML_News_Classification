@@ -2,6 +2,7 @@ import sys
 import numpy as np
 import pandas as pd
 import processing.common as common
+
 pd.set_option('display.max_columns', sys.maxsize)
 pd.set_option('display.max_rows', sys.maxsize)
 pd.set_option('display.width', sys.maxsize)
@@ -23,7 +24,10 @@ def generate_model(
     cls_keys = []
 
     """List of all classes"""
-    classes = np.sort(np.array(list(classes_freq.keys())))
+    # classes = np.sort(np.array(list(classes_freq.keys())))
+    classes = list(classes_freq.keys())
+    col_order = ["story", "ask_hn", "show_hn", "poll"]
+    classes = [col for col in col_order if col in classes]
 
     """For every class, get the vocabulary and frequency of all all the words"""
     for cls in classes:
