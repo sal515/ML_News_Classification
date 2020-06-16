@@ -104,7 +104,7 @@ def store_dataframe_to_file(data_dict, csv_path, output_dir, debug_dir, fileName
     output_path = "".join([output_dir if not param.isInfrequentExp else param.infrequent_exp_output_dir, fileName])
 
     param.createDir(output_dir)
-    lines = []
+    lines = ["  ".join(np.concatenate([[str("-")], list(dataframe.columns)])).__add__("\n")]
     for i, line in enumerate(dataframe.to_numpy()):
         lines.append("  ".join(np.concatenate([[str(i)], [str(i) for i in line]])).__add__("\n"))
     with open(output_path, "w") as f:

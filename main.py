@@ -210,6 +210,7 @@ for train_type in param.experiments.train_types:
 time_taken = time.perf_counter() - timer_offset
 print("\nTotal time elapsed to complete the experiments ", round(time_taken, 3), "s")
 
-# FIXME : fix plot x axis
+# FIXME : Readme
+# FIXME : fix plot x axis and plot other metrics
 """Plotting the accurary for infrequeny words experiments"""
 plot_output()
