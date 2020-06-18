@@ -51,7 +51,7 @@
     
     conda install -c anaconda numpy
 
-### Install maatplotlib:
+### Install matplotlib:
     
     conda install -c conda-forge matplotlib
     
@@ -109,7 +109,6 @@
         
             python main.py   
     
-    * Note: it takes some time to run the first time
     
 * Deactivate current conda environment (if needed)
 
