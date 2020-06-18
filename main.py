@@ -171,7 +171,7 @@ def harmic_plot(frequency_vocabLen, percentage_vocabLen, frequency_hm_values, pe
     frequency_vocab_len = [i[1] for i in frequency_vocabLen]
     for i, hm in enumerate(frequency_hm_values):
         frequency_lines.append(axs[0].plot(frequency_vocab_len, hm, color=random_plot_color(), label=cls_list[i]))
-    axs[0].legend(loc="right")
+    axs[0].legend(fancybox=True, framealpha=0.1,  loc="right")
 
     percentage_lines = []
     axs[1].grid(True, "both")
@@ -182,7 +182,8 @@ def harmic_plot(frequency_vocabLen, percentage_vocabLen, frequency_hm_values, pe
     percentage_vocab_len = [i[1] for i in percentage_vocabLen]
     for i, hm in enumerate(percentage_hm_values):
         percentage_lines.append(axs[1].plot(percentage_vocab_len, hm, color=random_plot_color(), label=cls_list[i]))
-    axs[1].legend(loc="right")
+
+    axs[1].legend(fancybox=True, framealpha=0.1,  loc="right")
 
     plt.show()
 
@@ -260,5 +261,5 @@ frequency_hm_values = np.array(frequency_hm_values).T
 percentage_hm_values = np.array(percentage_hm_values).T
 
 # if cls_lists.__len__() == 2 and cls_lists[0] == cls_lists[1]:
-print("plotted harmonics")
+print("plotted harmonic mean")
 harmic_plot(frequency_vocab, percentage_vocab, frequency_hm_values, percentage_hm_values, cls_list)
