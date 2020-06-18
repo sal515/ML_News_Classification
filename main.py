@@ -165,7 +165,7 @@ def harmic_plot(frequency_vocabLen, percentage_vocabLen, frequency_hm_values, pe
     frequency_lines = []
     axs[0].grid(True, "both")
     axs[0].set_title("""Harmonic Mean (uniform weight) vs Words in Vocabulary (By Frequency)""")
-    axs[0].set(xlabel="# Words in Vocabulary", ylabel="Harmonic Mean %")
+    axs[0].set(ylabel="Harmonic Mean %")
     # axs[0].plot(param.word_freq_threshold.frequencies, param.word_freq_threshold.frequencies_result)
 
     frequency_vocab_len = [i[1] for i in frequency_vocabLen]
@@ -176,8 +176,7 @@ def harmic_plot(frequency_vocabLen, percentage_vocabLen, frequency_hm_values, pe
     percentage_lines = []
     axs[1].grid(True, "both")
     axs[1].set_title("""Harmonic Mean (uniform weight) vs Words in Vocabulary (By Top percentage)""")
-    # axs[1].set(xlabel="# Words in Vocabulary", ylabel="Harmonic Mean %")
-    axs[1].set(ylabel="Harmonic Mean %")
+    axs[1].set(xlabel="# Words in Vocabulary", ylabel="Harmonic Mean %")
     # axs[1].plot(param.word_freq_threshold.percentages, param.word_freq_threshold.percentages_result)
 
     percentage_vocab_len = [i[1] for i in percentage_vocabLen]
