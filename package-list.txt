@@ -2,8 +2,8 @@
 # $ conda create --name <env> --file <this file>
 # platform: win-64
 blas=1.0=mkl
-ca-certificates=2020.1.1=0
-certifi=2020.4.5.1=py38_0
+ca-certificates=2020.4.5.2=hecda079_0
+certifi=2020.4.5.2=py38h32f6830_0
 cycler=0.10.0=py38_0
 freetype=2.9.1=ha9979f8_1
 icc_rt=2019.0.0=h0cc432a_1
@@ -28,6 +28,7 @@ pyparsing=2.4.7=py_0
 pyqt=5.9.2=py38ha925a31_4
 python=3.8.3=he1778fa_0
 python-dateutil=2.8.1=py_0
+python_abi=3.8=1_cp38
 pytz=2020.1=py_0
 qt=5.9.7=vc14h73c81de_0
 setuptools=46.4.0=py38_0
