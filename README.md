@@ -109,6 +109,8 @@
         
             python main.py   
     
+    * Please note: The first time it takes some time to start, to build the python files
+    
     
 * Deactivate current conda environment (if needed)
 
