@@ -51,6 +51,9 @@
     
     conda install -c anaconda numpy
 
+### Install maatplotlib:
+    
+    conda install -c conda-forge matplotlib
     
 
 
