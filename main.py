@@ -245,9 +245,6 @@ for train_type in param.experiments.train_types:
             percentage_hm_values.append(hm)
             param.word_freq_threshold.percentages_result.append(overall_accuracy)
 
-            # # FIXME : Debug
-            # print(classification_df[classification_df["Classification"].isin(["ask_hn"])])
-
         continue
 
     """Updating result and model file paths for all other experiments"""
@@ -260,8 +257,6 @@ for train_type in param.experiments.train_types:
 time_taken = time.perf_counter() - timer_offset
 print("\nTotal time elapsed to complete the experiments ", round(time_taken, 3), "s")
 
-# FIXME : Readme
-# FIXME : fix plot x axis and plot other metrics
 """Plotting the accurary for infrequeny words experiments"""
 frequency_hm_values = np.array(frequency_hm_values).T
 percentage_hm_values = np.array(percentage_hm_values).T
