@@ -43,9 +43,9 @@ class param:
     class word_freq_threshold:
         frequency_str = "frequency"
         percentage_str = "percentage"
-        min_freq = 1
+        min_freq = 0
         max_freq = 20
-        min_top_percentage = 5
+        min_top_percentage = 0
         max_top_percentage = 25
         steps = 5
         frequencies = None
@@ -98,9 +98,10 @@ class param:
         param.word_freq_threshold.frequencies = list(np.array(range(
             param.word_freq_threshold.min_freq,
             (param.word_freq_threshold.max_freq +
-             param.word_freq_threshold.steps),
-            param.word_freq_threshold.steps)) - 1)
-        param.word_freq_threshold.frequencies[0] = 1
+             (2 * param.word_freq_threshold.steps)),
+            param.word_freq_threshold.steps)))
+        param.word_freq_threshold.frequencies.insert(1, 1)
+        # param.word_freq_threshold.frequencies[1] = 1
 
         param.word_freq_threshold.percentages = list(range(
             param.word_freq_threshold.min_top_percentage,
