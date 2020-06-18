@@ -32,7 +32,60 @@ def extract_dataset(
                 print(col_name, " was not of type string")
 
     data_category = "data_category"
-    extracted_category = [str(datetime.strptime(str(dt), '%Y-%m-%d %H:%M:%S').year) for dt in list(data[filterBy])]
+
+    extracted_category = None
+
+    # s = str("1/1/2018 0:59")
+    # for p in string.punctuation:
+    #     s = s.replace(p, "-")
+    #     print(s)
+
+    cleaned_date_time_list = []
+    for dt in list(data[filterBy]):
+        for p in string.punctuation:
+            dt = dt.replace(p, "-")
+        cleaned_date_time_list.append(dt)
+
+    try:
+        # y m d h m s
+        extracted_category = [str(datetime.strptime(str(dt), '%Y-%m-%d %H-%M-%S').year) for dt in
+                              cleaned_date_time_list]
+    except Exception as e:
+        print("debug :", e)
+        try:
+            # y m d h m
+            extracted_category = [str(datetime.strptime(str(dt), '%Y-%m-%d %H-%M').year) for dt in
+                                  cleaned_date_time_list]
+        except Exception as e:
+            print("debug :", e)
+            try:
+                # d m y h m s
+                extracted_category = [str(datetime.strptime(str(dt), '%d-%m-%Y %H-%M-%S').year) for dt in
+                                      cleaned_date_time_list]
+            except Exception as e:
+                print("debug :", e)
+                try:
+                    # d m y h m
+                    extracted_category = [str(datetime.strptime(str(dt), '%d-%m-%Y %H-%M').year) for dt in
+                                          cleaned_date_time_list]
+                except Exception as e:
+                    print("debug :", e)
+                    try:
+                        #  m d y h m s
+                        extracted_category = [str(datetime.strptime(str(dt), '%m-%d-%Y %H-%M-%S').year) for dt in
+                                              cleaned_date_time_list]
+                    except Exception as e:
+                        print("debug :", e)
+                        try:
+                            #  m d y h m
+                            extracted_category = [str(datetime.strptime(str(dt), '%m-%d-%Y %H-%M').year) for dt in
+                                                  cleaned_date_time_list]
+                        except Exception as e:
+                            print("debug :", e)
+
+    if extracted_category is None:
+        quit("Data formatting error: There is an issue with data format of the dataset CSV file ")
+
     data[data_category] = extracted_category
 
     """Extract all training dataset according to filter provided as parameter"""
@@ -98,12 +151,26 @@ def calc_total_cls_entries(classes_freq):
     return reduce((lambda x, y: x + y), list(classes_freq.values()))
 
 
-def store_dataframe_to_file(data_dict, csv_path, text_path):
+def store_dataframe_to_file(data_dict, csv_path, output_dir, debug_dir, fileName):
     """Save the dataframe to txt file, and csv on debug"""
     dataframe = pd.DataFrame(data_dict)
-    if csv_path is not None:
-        dataframe.to_csv(csv_path)
-    param.createDir("./output/")
-    with open(text_path, "w") as f:
-        f.write(dataframe.__repr__())
+    output_path = "".join([output_dir if not param.isInfrequentExp else param.infrequent_exp_output_dir, fileName])
+
+    param.createDir(output_dir)
+    lines = ["  ".join(np.concatenate([[str("-")], list(dataframe.columns)])).__add__("\n")]
+    for i, line in enumerate(dataframe.to_numpy()):
+        lines.append("  ".join(np.concatenate([[str(i)], [str(i) for i in line]])).__add__("\n"))
+    with open(output_path, "w") as f:
+        for line in lines:
+            f.write(line)
+
+    if param.debug:
+        debug_path = "".join([debug_dir if not param.isInfrequentExp else param.infrequent_exp_debug_dir, fileName])
+        if csv_path is not None:
+            dataframe.to_csv(csv_path)
+
+        param.createDir(debug_dir)
+        with open(debug_path, "w") as f:
+            f.write(dataframe.__repr__())
+
     return dataframe
